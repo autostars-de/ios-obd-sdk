@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'ASIOSObdSdk_Example' do
+  platform :ios, '13.0'
+  pod 'ASIOSObdSdk', :path => '../'
+
+  target 'ASIOSObdSdk_Tests' do
+    inherit! :search_paths
+
+    end
+end
