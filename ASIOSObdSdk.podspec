@@ -16,4 +16,5 @@ autostars.de. Use your access-token to fully authorize your application.
   s.source_files          = 'ASIOSObdSdk/Classes/**/*'
   s.frameworks            = 'CoreBluetooth', 'Foundation', 'UIKit'
   s.dependency              'Logging', '~> 1.1'
+  s.dependency              'IKEventSource', '~> 3.0.1'
 end

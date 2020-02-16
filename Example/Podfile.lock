@@ -1,13 +1,16 @@
 PODS:
   - ASIOSObdSdk (1.0.0):
+    - IKEventSource (~> 3.0.1)
     - Logging (~> 1.1)
-  - Logging (1.1.0)
+  - IKEventSource (3.0.1)
+  - Logging (1.2.0)
 
 DEPENDENCIES:
   - ASIOSObdSdk (from `../`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
+    - IKEventSource
     - Logging
 
 EXTERNAL SOURCES:
@@ -15,9 +18,10 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ASIOSObdSdk: 24036c1c8e8eb7236ddd8f12bf3edccb838f5960
-  Logging: 0f0b5d7d124fab770fde88cf942cb57a63804236
+  ASIOSObdSdk: 4515b0e2835d3fc3cf2cec4ba2b051a0dfc78224
+  IKEventSource: ababa323587c6b0c250dd54d4a48ab68fd845e8e
+  Logging: 7838d379d234d7e5ae1265fa02804a9084caf04c
 
 PODFILE CHECKSUM: 496b17feb44470ad4eaf08a0d73e1b312ca94650
 
-COCOAPODS: 1.7.1
+COCOAPODS: 1.8.4

@@ -271,11 +271,13 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ASIOSObdSdk_Example/Pods-ASIOSObdSdk_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/ASIOSObdSdk/ASIOSObdSdk.framework",
+				"${BUILT_PRODUCTS_DIR}/IKEventSource/IKEventSource.framework",
 				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ASIOSObdSdk.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IKEventSource.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
