@@ -2,6 +2,7 @@ import UIKit
 import Foundation
 import Logging
 import IKEventSource
+import SwiftyJSON
 
 public struct ObdEvent: Codable {
     public let id: String!
@@ -9,6 +10,7 @@ public struct ObdEvent: Codable {
     public let timestamp: Date!
     public let aggregateId: String!
     public let aggregateRevision: Int!
+    public let attributes: JSON!
 
     private enum CodingKeys: String, CodingKey {
         case id = "id"
@@ -16,20 +18,23 @@ public struct ObdEvent: Codable {
         case timestamp = "timestamp"
         case aggregateId = "aggregateId"
         case aggregateRevision = "aggregateRevision"
+        case attributes = "attributes"
     }
     
-    public func short() -> String {
+    public func has(name: String) -> Bool {
+        return short() == name
+    }
+    
+    public func attributeString(key: String) -> String {
+         return attributes[key].string!
+    }
+    
+    public func attributeInt(key: String) -> Int {
+        return attributes[key].int!
+    }
+    
+    private func short() -> String {
         return name.replacingOccurrences(of: "de.autostars.domain.", with: "")
-    }
-    
-    public static func createDecoder() -> JSONDecoder {
-        let decoder = JSONDecoder()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SS'Z'"
-        decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
-            return formatter.date(from: try decoder.singleValueContainer().decode(String.self))!
-        })
-        return decoder
     }
 }
 
@@ -76,6 +81,16 @@ class BackendConnection: NSObject, StreamDelegate {
     
     private var eventSource: EventSource!
     
+    private let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SS'Z'"
+        decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
+            return formatter.date(from: try decoder.singleValueContainer().decode(String.self))!
+        })
+        return decoder
+    }()
+    
     init(options: BackendOptions) {
         self.options = options
         self.onDataHandler = options.onData
@@ -104,7 +119,6 @@ class BackendConnection: NSObject, StreamDelegate {
     
     private func listenOnEventStream() -> () {
         eventSource = EventSource(url: URL(string: "https://obd.autostars.de/obd/events")!)
-        let decoder = ObdEvent.createDecoder()
         
         eventSource.onMessage { (id, event, data) in
             
@@ -112,7 +126,9 @@ class BackendConnection: NSObject, StreamDelegate {
                 
                 do {
                     
-                    let e = try decoder.decode(ObdEvent.self, from: data!.data(using: .utf8)!)
+                    let data: Data = data!.data(using: .utf8)!
+                    
+                    let e = try self.decoder.decode(ObdEvent.self, from: data)
                     
                     self.options.onEvent(e)
                 

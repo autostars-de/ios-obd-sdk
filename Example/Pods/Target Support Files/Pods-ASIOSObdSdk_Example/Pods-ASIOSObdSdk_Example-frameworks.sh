@@ -164,11 +164,13 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/ASIOSObdSdk/ASIOSObdSdk.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/IKEventSource/IKEventSource.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/Logging/Logging.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/ASIOSObdSdk/ASIOSObdSdk.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/IKEventSource/IKEventSource.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/Logging/Logging.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
   wait

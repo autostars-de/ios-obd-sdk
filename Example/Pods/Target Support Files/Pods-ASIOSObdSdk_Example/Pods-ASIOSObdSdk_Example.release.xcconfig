@@ -1,9 +1,9 @@
 ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES
-FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ASIOSObdSdk" "${PODS_CONFIGURATION_BUILD_DIR}/IKEventSource" "${PODS_CONFIGURATION_BUILD_DIR}/Logging"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ASIOSObdSdk" "${PODS_CONFIGURATION_BUILD_DIR}/IKEventSource" "${PODS_CONFIGURATION_BUILD_DIR}/Logging" "${PODS_CONFIGURATION_BUILD_DIR}/SwiftyJSON"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
-HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ASIOSObdSdk/ASIOSObdSdk.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/IKEventSource/IKEventSource.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/Logging/Logging.framework/Headers"
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ASIOSObdSdk/ASIOSObdSdk.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/IKEventSource/IKEventSource.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/Logging/Logging.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/SwiftyJSON/SwiftyJSON.framework/Headers"
 LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
-OTHER_LDFLAGS = $(inherited) -framework "ASIOSObdSdk" -framework "CoreBluetooth" -framework "Foundation" -framework "IKEventSource" -framework "Logging" -framework "UIKit"
+OTHER_LDFLAGS = $(inherited) -framework "ASIOSObdSdk" -framework "CoreBluetooth" -framework "Foundation" -framework "IKEventSource" -framework "Logging" -framework "SwiftyJSON" -framework "UIKit"
 OTHER_SWIFT_FLAGS = $(inherited) -D COCOAPODS
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)

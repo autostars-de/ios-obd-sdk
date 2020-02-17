@@ -32,7 +32,10 @@ class ViewController: UIViewController {
     
     func onBackendEvent(_ event: ObdEvent) -> () {
         DispatchQueue.main.async {
-            self.eventsTextView.text += "\n" + (self.df.string(from: event.timestamp) + " - " + event.short())
+            if (event.has(name: "RpmNumberRead")) {
+                let rpmNumber = event.attributeString(key: "number")
+                self.eventsTextView.text = rpmNumber
+            }
         }
     }
     
