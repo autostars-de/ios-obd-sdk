@@ -4,15 +4,20 @@ import Logging
 
 public typealias ConnectedHandler = (_ sessionId: String) -> ()
 public typealias DisconnectedHandler = () -> ()
+public typealias BackendEventHandler = (_ event: ObdEvent) -> ()
 
 public struct ApiOptions {
     let onConnected: ConnectedHandler
     let onDisconnected: DisconnectedHandler
+    let onBackendEventReceived: BackendEventHandler
     let socket: DataSocket = DataSocket(ip: "autostars.de", port: "8898")
     
-    public init(onConnected: @escaping ConnectedHandler, onDisconnected: @escaping DisconnectedHandler) {
+    public init(onConnected: @escaping ConnectedHandler,
+                onDisconnected: @escaping DisconnectedHandler,
+                onBackendEvent: @escaping BackendEventHandler) {
         self.onConnected = onConnected
         self.onDisconnected = onDisconnected
+        self.onBackendEventReceived = onBackendEvent
     }
 }
 
@@ -44,7 +49,7 @@ public class ApiManager: NSObject, StreamDelegate {
         
         backend = BackendConnection.init(
             options: BackendOptions
-                .init(listen: socket, onData: self.onBackendDataReceived)
+                .init(listen: socket, onData: self.onBackendDataReceived, onEvent: options.onBackendEventReceived)
         )
     }
     

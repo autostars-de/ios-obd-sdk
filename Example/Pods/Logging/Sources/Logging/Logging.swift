@@ -13,9 +13,9 @@
 //===----------------------------------------------------------------------===//
 
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-    import Darwin
+import Darwin
 #else
-    import Glibc
+import Glibc
 #endif
 
 /// A `Logger` is the central type in `SwiftLog`. Its central function is to emit log messages using one of the methods
@@ -105,7 +105,6 @@ extension Logger {
     /// otherwise nothing will happen.
     ///
     /// - parameters:
-    ///    - level: The log level to log `message` at. For the available log levels, see `Logger.Level`.
     ///    - message: The message to be logged. `message` can be used with any string interpolation literal.
     ///    - metadata: One-off metadata to attach to this log message
     ///    - file: The file this log message originates from (there's usually no need to pass it explicitly as it
@@ -127,7 +126,6 @@ extension Logger {
     /// otherwise nothing will happen.
     ///
     /// - parameters:
-    ///    - level: The log level to log `message` at. For the available log levels, see `Logger.Level`.
     ///    - message: The message to be logged. `message` can be used with any string interpolation literal.
     ///    - metadata: One-off metadata to attach to this log message
     ///    - file: The file this log message originates from (there's usually no need to pass it explicitly as it
@@ -149,7 +147,6 @@ extension Logger {
     /// otherwise nothing will happen.
     ///
     /// - parameters:
-    ///    - level: The log level to log `message` at. For the available log levels, see `Logger.Level`.
     ///    - message: The message to be logged. `message` can be used with any string interpolation literal.
     ///    - metadata: One-off metadata to attach to this log message
     ///    - file: The file this log message originates from (there's usually no need to pass it explicitly as it
@@ -171,7 +168,6 @@ extension Logger {
     /// otherwise nothing will happen.
     ///
     /// - parameters:
-    ///    - level: The log level to log `message` at. For the available log levels, see `Logger.Level`.
     ///    - message: The message to be logged. `message` can be used with any string interpolation literal.
     ///    - metadata: One-off metadata to attach to this log message
     ///    - file: The file this log message originates from (there's usually no need to pass it explicitly as it
@@ -193,7 +189,6 @@ extension Logger {
     /// otherwise nothing will happen.
     ///
     /// - parameters:
-    ///    - level: The log level to log `message` at. For the available log levels, see `Logger.Level`.
     ///    - message: The message to be logged. `message` can be used with any string interpolation literal.
     ///    - metadata: One-off metadata to attach to this log message
     ///    - file: The file this log message originates from (there's usually no need to pass it explicitly as it
@@ -215,7 +210,6 @@ extension Logger {
     /// otherwise nothing will happen.
     ///
     /// - parameters:
-    ///    - level: The log level to log `message` at. For the available log levels, see `Logger.Level`.
     ///    - message: The message to be logged. `message` can be used with any string interpolation literal.
     ///    - metadata: One-off metadata to attach to this log message
     ///    - file: The file this log message originates from (there's usually no need to pass it explicitly as it
@@ -236,7 +230,6 @@ extension Logger {
     /// `.critical` messages will always be logged.
     ///
     /// - parameters:
-    ///    - level: The log level to log `message` at. For the available log levels, see `Logger.Level`.
     ///    - message: The message to be logged. `message` can be used with any string interpolation literal.
     ///    - metadata: One-off metadata to attach to this log message
     ///    - file: The file this log message originates from (there's usually no need to pass it explicitly as it
@@ -288,25 +281,46 @@ extension Logger {
     public typealias Metadata = [String: MetadataValue]
 
     /// A logging metadata value. `Logger.MetadataValue` is string, array, and dictionary literal convertible.
+    ///
+    /// `MetadataValue` provides convenient conformances to `ExpressibleByStringInterpolation`,
+    /// `ExpressibleByStringLiteral`, `ExpressibleByArrayLiteral`, and `ExpressibleByDictionaryLiteral` which means
+    /// that when constructing `MetadataValue`s you should default to using Swift's usual literals.
+    ///
+    /// Examples:
+    ///  - prefer `logger.info("user logged in", metadata: ["user-id": "\(user.id)"])` over
+    ///    `..., metadata: ["user-id": .string(user.id.description)])`
+    ///  - prefer `logger.info("user selected colours", metadata: ["colors": ["\(user.topColor)", "\(user.secondColor)"]])`
+    ///    over `..., metadata: ["colors": .array([.string("\(user.topColor)"), .string("\(user.secondColor)")])`
+    ///  - prefer `logger.info("nested info", metadata: ["nested": ["fave-numbers": ["\(1)", "\(2)", "\(3)"], "foo": "bar"]])`
+    ///    over `..., metadata: ["nested": .dictionary(["fave-numbers": ...])])`
     public enum MetadataValue {
         /// A metadata value which is a `String`.
+        ///
+        /// Because `MetadataValue` implements `ExpressibleByStringInterpolation`, and `ExpressibleByStringLiteral`,
+        /// you don't need to type `.string(someType.description)` you can use the string interpolation `"\(someType)"`.
         case string(String)
 
         /// A metadata value which is some `CustomStringConvertible`.
         case stringConvertible(CustomStringConvertible)
 
         /// A metadata value which is a dictionary from `String` to `Logger.MetadataValue`.
+        ///
+        /// Because `MetadataValue` implements `ExpressibleByDictionaryLiteral`, you don't need to type
+        /// `.dictionary(["foo": .string("bar \(buz)")])`, you can just use the more natural `["foo": "bar \(buz)"]`.
         case dictionary(Metadata)
 
         /// A metadata value which is an array of `Logger.MetadataValue`s.
+        ///
+        /// Because `MetadataValue` implements `ExpressibleByArrayLiteral`, you don't need to type
+        /// `.array([.string("foo"), .string("bar \(buz)")])`, you can just use the more natural `["foo", "bar \(buz)"]`.
         case array([Metadata.Value])
     }
 
     /// The log level.
     ///
-    /// Raw values of log levels correspond to their severity, and are ordered by lowest numeric value (0) being
-    /// the most severe. The raw values match the syslog values.
-    public enum Level: CaseIterable {
+    /// Log levels are ordered by their severity, with `.trace` being the least severe and
+    /// `.critical` being the most severe.
+    public enum Level: String, Codable, CaseIterable {
         /// Appropriate for messages that contain information only when debugging a program.
         case trace
 
@@ -510,19 +524,35 @@ public struct MultiplexLogHandler: LogHandler {
 /// cross-thread interleaving of output.
 internal struct StdioOutputStream: TextOutputStream {
     internal let file: UnsafeMutablePointer<FILE>
+    internal let flushMode: FlushMode
 
     internal func write(_ string: String) {
         string.withCString { ptr in
-            flockfile(file)
+            flockfile(self.file)
             defer {
-                funlockfile(file)
+                funlockfile(self.file)
             }
-            _ = fputs(ptr, file)
+            _ = fputs(ptr, self.file)
+            if case .always = self.flushMode {
+                self.flush()
+            }
         }
     }
 
-    internal static let stderr = StdioOutputStream(file: systemStderr)
-    internal static let stdout = StdioOutputStream(file: systemStdout)
+    /// Flush the underlying stream.
+    /// This has no effect when using the `.always` flush mode, which is the default
+    internal func flush() {
+        _ = fflush(self.file)
+    }
+
+    internal static let stderr = StdioOutputStream(file: systemStderr, flushMode: .always)
+    internal static let stdout = StdioOutputStream(file: systemStdout, flushMode: .always)
+
+    /// Defines the flushing strategy for the underlying stream.
+    internal enum FlushMode {
+        case undefined
+        case always
+    }
 }
 
 // Prevent name clashes
@@ -537,7 +567,6 @@ let systemStdout = Glibc.stdout!
 /// `StreamLogHandler` is a simple implementation of `LogHandler` for directing
 /// `Logger` output to either `stderr` or `stdout` via the factory methods.
 public struct StreamLogHandler: LogHandler {
-
     /// Factory that makes a `StreamLogHandler` to directs its output to `stdout`
     public static func standardOutput(label: String) -> StreamLogHandler {
         return StreamLogHandler(label: label, stream: StdioOutputStream.stdout)
@@ -555,16 +584,16 @@ public struct StreamLogHandler: LogHandler {
     private var prettyMetadata: String?
     public var metadata = Logger.Metadata() {
         didSet {
-            prettyMetadata = prettify(metadata)
+            self.prettyMetadata = self.prettify(self.metadata)
         }
     }
 
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
         get {
-            return metadata[metadataKey]
+            return self.metadata[metadataKey]
         }
         set {
-            metadata[metadataKey] = newValue
+            self.metadata[metadataKey] = newValue
         }
     }
 
@@ -582,7 +611,7 @@ public struct StreamLogHandler: LogHandler {
             : self.prettify(self.metadata.merging(metadata!, uniquingKeysWith: { _, new in new }))
 
         var stream = self.stream
-        stream.write("\(timestamp()) \(level):\(prettyMetadata.map { " \($0)" } ?? "") \(message)\n")
+        stream.write("\(self.timestamp()) \(level):\(prettyMetadata.map { " \($0)" } ?? "") \(message)\n")
     }
 
     private func prettify(_ metadata: Logger.Metadata) -> String? {

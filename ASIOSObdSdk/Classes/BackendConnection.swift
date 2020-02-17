@@ -1,6 +1,42 @@
 import UIKit
 import Foundation
 import Logging
+import IKEventSource
+import SwiftyJSON
+
+public struct ObdEvent: Codable {
+    public let id: String!
+    public let name: String!
+    public let timestamp: Date!
+    public let aggregateId: String!
+    public let aggregateRevision: Int!
+    public let attributes: JSON!
+
+    private enum CodingKeys: String, CodingKey {
+        case id = "id"
+        case name = "name"
+        case timestamp = "timestamp"
+        case aggregateId = "aggregateId"
+        case aggregateRevision = "aggregateRevision"
+        case attributes = "attributes"
+    }
+    
+    public func has(name: String) -> Bool {
+        return short() == name
+    }
+    
+    public func attributeString(key: String) -> String {
+         return attributes[key].string!
+    }
+    
+    public func attributeInt(key: String) -> Int {
+        return attributes[key].int!
+    }
+    
+    private func short() -> String {
+        return name.replacingOccurrences(of: "de.autostars.domain.", with: "")
+    }
+}
 
 struct DataSocket {
     let ipAddress: String!
@@ -13,15 +49,20 @@ struct DataSocket {
 }
 
 typealias BackendOnDataHandler = (_ data: Data) -> ()
+public typealias BackendOnEventHandler = (_ event: ObdEvent) -> ()
 
 struct BackendOptions {
     let onData: BackendOnDataHandler
+    let onEvent: BackendOnEventHandler
+    
     let listen: DataSocket
  
     init(listen: DataSocket,
-         onData: @escaping BackendOnDataHandler) {
+         onData: @escaping BackendOnDataHandler,
+         onEvent: @escaping BackendOnEventHandler) {
         self.listen = listen
         self.onData = onData
+        self.onEvent = onEvent
     }
 }
 
@@ -37,6 +78,18 @@ class BackendConnection: NSObject, StreamDelegate {
     private var options: BackendOptions
     
     private var onDataHandler: BackendOnDataHandler
+    
+    private var eventSource: EventSource!
+    
+    private let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SS'Z'"
+        decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
+            return formatter.date(from: try decoder.singleValueContainer().decode(String.self))!
+        })
+        return decoder
+    }()
     
     init(options: BackendOptions) {
         self.options = options
@@ -59,6 +112,41 @@ class BackendConnection: NSObject, StreamDelegate {
             outputStream.open()
                         
             connected = true
+            listenOnEventStream()
+            
+        }
+    }
+    
+    private func listenOnEventStream() -> () {
+        eventSource = EventSource(url: URL(string: "https://obd.autostars.de/obd/events")!)
+        
+        eventSource.onMessage { (id, event, data) in
+            
+            if (data != nil && (data?.lengthOfBytes(using: .utf8))! > 0) {
+                
+                do {
+                    
+                    let data: Data = data!.data(using: .utf8)!
+                    
+                    let e = try self.decoder.decode(ObdEvent.self, from: data)
+                    
+                    self.options.onEvent(e)
+                
+                } catch {
+                    self.logger.error("could not unserialize incoming event \(String(describing: data))  \(error)")
+                }
+                
+            }
+            
+        }
+        
+        eventSource.connect()
+    }
+    
+    private func disconnectEventStream() {
+        if (self.eventSource != nil) {
+            self.eventSource.disconnect()
+            self.eventSource = nil
         }
     }
     
@@ -87,6 +175,9 @@ class BackendConnection: NSObject, StreamDelegate {
         
         inputStream  = nil
         outputStream = nil
+        
+        disconnectEventStream()
+        
         connected    = false
     }
 
