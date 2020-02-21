@@ -21,17 +21,20 @@ public struct ApiOptions {
     let onDisconnected: DisconnectedHandler
     let onBackendEventReceived: BackendEventHandler
     let onBackendAvailableCommands: BackendOnAvailableCommandsHandler
+    let onLocationUpdated: OnLocationUpdatedHandler
     
     let socket: DataSocket = DataSocket(ip: "autostars.de", port: "8898")
     
     public init(onConnected: @escaping ConnectedHandler,
                 onDisconnected: @escaping DisconnectedHandler,
                 onBackendEvent: @escaping BackendEventHandler,
-                onAvailableCommands: @escaping BackendOnAvailableCommandsHandler) {
+                onAvailableCommands: @escaping BackendOnAvailableCommandsHandler,
+                onLocationUpdated: @escaping OnLocationUpdatedHandler) {
         self.onConnected = onConnected
         self.onDisconnected = onDisconnected
         self.onBackendEventReceived = onBackendEvent
         self.onBackendAvailableCommands = onAvailableCommands
+        self.onLocationUpdated = onLocationUpdated
     }
 }
 
@@ -42,6 +45,7 @@ public class ApiManager: NSObject, StreamDelegate {
     
     private var bluetooth: BleConnection!
     private var backend: BackendConnection!
+    private var location: LocationService!
     
     private var initialized: Bool   = false
     private var sessionId: String   = ""
@@ -69,6 +73,9 @@ public class ApiManager: NSObject, StreamDelegate {
                       onAvailableCommands: options.onBackendAvailableCommands
             )
         )
+        
+        location = LocationService.init(options: LocationOptions.init(onLocationUpdated: self.options.onLocationUpdated))
+        location.register()
     }
     
     public func connect(token: String) -> ApiManager {

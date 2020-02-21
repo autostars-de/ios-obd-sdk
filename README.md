@@ -32,6 +32,10 @@ After this done add this parameters to your `Info.plist` file to access BLE devi
 `Privacy - Bluetooth Always Usage Description`
 `Privacy - Bluetooth Peripheral Usage Description`
 
+For Location GPS purposes activate
+`NSLocationAlwaysUsageDescription`
+`NSLocationWhenInUseUsageDescription` in your `Info.plist`.
+ 
 ## Usage and API
 
 

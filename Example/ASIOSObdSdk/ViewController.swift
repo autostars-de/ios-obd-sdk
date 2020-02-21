@@ -1,5 +1,6 @@
 import UIKit
 import ASIOSObdSdk
+import MapKit
 
 class ViewController: UIViewController {
 
@@ -8,7 +9,7 @@ class ViewController: UIViewController {
     
     @IBOutlet var startSession: UIButton!
     
-    @IBOutlet var mapsView: UIView!
+    @IBOutlet var mapsView: MKMapView!
     
     private var cloud: ApiManager!
     private var availableCommands: AvailableCommands!
@@ -20,7 +21,8 @@ class ViewController: UIViewController {
             .init(options: ApiOptions.init(onConnected: self.onConnected,
                                            onDisconnected: self.onDisconnected,
                                            onBackendEvent: self.onBackendEvent,
-                                           onAvailableCommands: self.onAvailableCommands)
+                                           onAvailableCommands: self.onAvailableCommands,
+                                           onLocationUpdated: self.onLocationUpdated)
             )
             .connect(token: "authorization-token-here")
     }
@@ -29,6 +31,11 @@ class ViewController: UIViewController {
         DispatchQueue.main.async {
             self.sessionField.text = session
         }        
+    }
+    
+    func onLocationUpdated(_ location: Location) -> () {
+        self.mapsView.setRegion(location.region(), animated: true)
+        self.mapsView.addAnnotation(location.annotation())
     }
     
     @IBAction func executeCommands(sender: UIButton) {
