@@ -3,6 +3,7 @@ import Foundation
 import Logging
 import IKEventSource
 import SwiftyJSON
+import Alamofire
 
 public struct ObdEvent: Codable {
     public let id: String!
@@ -48,27 +49,37 @@ struct DataSocket {
     }
 }
 
+public struct AvailableCommands: Decodable { let commands: [String] }
+
+
+
 typealias BackendOnDataHandler = (_ data: Data) -> ()
 public typealias BackendOnEventHandler = (_ event: ObdEvent) -> ()
+public typealias BackendOnAvailableCommandsHandler = (_ commands: AvailableCommands) -> ()
 
 struct BackendOptions {
     let onData: BackendOnDataHandler
     let onEvent: BackendOnEventHandler
+    let onAvailableCommand: BackendOnAvailableCommandsHandler
     
     let listen: DataSocket
  
     init(listen: DataSocket,
          onData: @escaping BackendOnDataHandler,
-         onEvent: @escaping BackendOnEventHandler) {
+         onEvent: @escaping BackendOnEventHandler,
+         onAvailableCommands: @escaping BackendOnAvailableCommandsHandler) {
         self.listen = listen
         self.onData = onData
         self.onEvent = onEvent
+        self.onAvailableCommand = onAvailableCommands
     }
 }
 
 class BackendConnection: NSObject, StreamDelegate {
     
     let logger = Logger(label: String(reflecting: BackendConnection.self))
+    
+    private static let ApiUrl = "https://obd.autostars.de/"
     
     private var inputStream: InputStream!
     private var outputStream: OutputStream!
@@ -113,12 +124,24 @@ class BackendConnection: NSObject, StreamDelegate {
                         
             connected = true
             listenOnEventStream()
-            
+            getAvailableCommands()
+        }
+    }
+    
+    func executeCommand(command: ObdExecuteCommand) -> () {
+        AF.request("\(BackendConnection.ApiUrl)/obd/execute", method: .post, parameters: command, encoder: JSONParameterEncoder.default).responseJSON { response in
+            self.logger.info("sent command: \(command) \(response)")
+        }
+    }
+    
+    private func getAvailableCommands() -> () {
+        AF.request("\(BackendConnection.ApiUrl)/obd/commands").responseDecodable(of: AvailableCommands.self) { response in
+            self.options.onAvailableCommand(response.value!)
         }
     }
     
     private func listenOnEventStream() -> () {
-        eventSource = EventSource(url: URL(string: "https://obd.autostars.de/obd/events")!)
+        eventSource = EventSource(url: URL(string: "\(BackendConnection.ApiUrl)/obd/events")!)
         
         eventSource.onMessage { (id, event, data) in
             

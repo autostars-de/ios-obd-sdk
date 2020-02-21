@@ -6,18 +6,32 @@ public typealias ConnectedHandler = (_ sessionId: String) -> ()
 public typealias DisconnectedHandler = () -> ()
 public typealias BackendEventHandler = (_ event: ObdEvent) -> ()
 
+public struct ObdExecuteCommand: Codable {
+    let sessionId: String
+    let name: String
+    
+    init(sessionId: String, name: String) {
+        self.sessionId = sessionId
+        self.name = name
+    }
+}
+
 public struct ApiOptions {
     let onConnected: ConnectedHandler
     let onDisconnected: DisconnectedHandler
     let onBackendEventReceived: BackendEventHandler
+    let onBackendAvailableCommands: BackendOnAvailableCommandsHandler
+    
     let socket: DataSocket = DataSocket(ip: "autostars.de", port: "8898")
     
     public init(onConnected: @escaping ConnectedHandler,
                 onDisconnected: @escaping DisconnectedHandler,
-                onBackendEvent: @escaping BackendEventHandler) {
+                onBackendEvent: @escaping BackendEventHandler,
+                onAvailableCommands: @escaping BackendOnAvailableCommandsHandler) {
         self.onConnected = onConnected
         self.onDisconnected = onDisconnected
         self.onBackendEventReceived = onBackendEvent
+        self.onBackendAvailableCommands = onAvailableCommands
     }
 }
 
@@ -49,13 +63,23 @@ public class ApiManager: NSObject, StreamDelegate {
         
         backend = BackendConnection.init(
             options: BackendOptions
-                .init(listen: socket, onData: self.onBackendDataReceived, onEvent: options.onBackendEventReceived)
+                .init(listen: socket,
+                      onData: self.onBackendDataReceived,
+                      onEvent: options.onBackendEventReceived,
+                      onAvailableCommands: options.onBackendAvailableCommands
+            )
         )
     }
     
-    public func connect(token: String) -> Void {
+    public func connect(token: String) -> ApiManager {
         self.token = token
         bluetooth.connect()
+        return self
+    }
+    
+    public func execute(command: String) -> () {
+        let command = ObdExecuteCommand(sessionId: self.sessionId, name: command)
+        self.backend.executeCommand(command: command)
     }
     
     private func onBleConnected() -> () {

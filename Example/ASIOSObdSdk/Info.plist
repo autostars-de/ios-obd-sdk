@@ -32,6 +32,8 @@
 	</array>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>BLE is used to connect to dongle and your car</string>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

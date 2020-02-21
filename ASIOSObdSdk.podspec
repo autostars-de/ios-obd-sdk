@@ -18,4 +18,5 @@ autostars.de. Use your access-token to fully authorize your application.
   s.dependency              'Logging', '~> 1.1'
   s.dependency              'IKEventSource', '~> 3.0.1'
   s.dependency              'SwiftyJSON', '~> 4.2.0'
+  s.dependency              'Alamofire', '5.0.0'
 end
