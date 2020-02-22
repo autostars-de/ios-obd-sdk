@@ -21,8 +21,7 @@ class ViewController: UIViewController {
             .init(options: ApiOptions.init(onConnected: self.onConnected,
                                            onDisconnected: self.onDisconnected,
                                            onBackendEvent: self.onBackendEvent,
-                                           onAvailableCommands: self.onAvailableCommands,
-                                           onLocationUpdated: self.onLocationUpdated)
+                                           onAvailableCommands: self.onAvailableCommands)
             )
             .connect(token: "authorization-token-here")
     }
@@ -33,11 +32,6 @@ class ViewController: UIViewController {
         }        
     }
     
-    func onLocationUpdated(_ location: Location) -> () {
-        self.mapsView.setRegion(location.region(), animated: true)
-        self.mapsView.addAnnotation(location.annotation())
-    }
-    
     @IBAction func executeCommands(sender: UIButton) {
         self.cloud.execute(command: "ReadRpmNumber")
     }
@@ -46,6 +40,18 @@ class ViewController: UIViewController {
         DispatchQueue.main.async {
             if (event.has(name: "RpmNumberRead")) {
                 self.rpmField.text = event.attributeString(key: "number")
+            }
+            if (event.has(name: "GpsPositionRead")) {
+                
+                let location = Location
+                    .init(
+                        longitudeValue: event.attributeDouble(key: "latidude"),
+                        latitudeValue: event.attributeDouble(key: "longitude")
+                    )
+                
+                self.mapsView.setRegion(location.region(), animated: true)
+                self.mapsView.addAnnotation(location.annotation())
+                
             }
         }
     }

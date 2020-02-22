@@ -5,11 +5,16 @@ import Logging
 
 public typealias OnLocationUpdatedHandler = (_ location: Location) -> ()
 
-public struct Location {
+public struct Location: Codable {
    let longitude: CLLocationDegrees
    let latitude: CLLocationDegrees
-       
-   init(longitude: CLLocationDegrees, latitude: CLLocationDegrees) {
+      
+   public init(longitudeValue: Double, latitudeValue: Double) {
+       self.longitude = CLLocationDegrees.init(longitudeValue)
+       self.latitude = CLLocationDegrees.init(latitudeValue)
+   }
+    
+   public init(longitude: CLLocationDegrees, latitude: CLLocationDegrees) {
        self.longitude = longitude
        self.latitude = latitude
    }
@@ -60,6 +65,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
        if CLLocationManager.locationServicesEnabled() {
            locationManager.delegate = self
            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+           locationManager.distanceFilter = kCLLocationAccuracyHundredMeters
            locationManager.startUpdatingLocation()
        }
     }

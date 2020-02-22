@@ -21,27 +21,23 @@ public struct ApiOptions {
     let onDisconnected: DisconnectedHandler
     let onBackendEventReceived: BackendEventHandler
     let onBackendAvailableCommands: BackendOnAvailableCommandsHandler
-    let onLocationUpdated: OnLocationUpdatedHandler
     
     let socket: DataSocket = DataSocket(ip: "autostars.de", port: "8898")
     
     public init(onConnected: @escaping ConnectedHandler,
                 onDisconnected: @escaping DisconnectedHandler,
                 onBackendEvent: @escaping BackendEventHandler,
-                onAvailableCommands: @escaping BackendOnAvailableCommandsHandler,
-                onLocationUpdated: @escaping OnLocationUpdatedHandler) {
+                onAvailableCommands: @escaping BackendOnAvailableCommandsHandler) {
         self.onConnected = onConnected
         self.onDisconnected = onDisconnected
         self.onBackendEventReceived = onBackendEvent
         self.onBackendAvailableCommands = onAvailableCommands
-        self.onLocationUpdated = onLocationUpdated
     }
 }
 
 public class ApiManager: NSObject, StreamDelegate {
     
     let logger = Logger(label: String(reflecting: ApiManager.self))
-    let socket = DataSocket(ip: "autostars.de", port: "8898")
     
     private var bluetooth: BleConnection!
     private var backend: BackendConnection!
@@ -67,14 +63,14 @@ public class ApiManager: NSObject, StreamDelegate {
         
         backend = BackendConnection.init(
             options: BackendOptions
-                .init(listen: socket,
+                .init(listen: self.options.socket,
                       onData: self.onBackendDataReceived,
                       onEvent: options.onBackendEventReceived,
                       onAvailableCommands: options.onBackendAvailableCommands
             )
         )
         
-        location = LocationService.init(options: LocationOptions.init(onLocationUpdated: self.options.onLocationUpdated))
+        location = LocationService.init(options: LocationOptions.init(onLocationUpdated: self.onLocationUpdated))
         location.register()
     }
     
@@ -82,6 +78,10 @@ public class ApiManager: NSObject, StreamDelegate {
         self.token = token
         bluetooth.connect()
         return self
+    }
+    
+    private func onLocationUpdated(_ location: Location) -> () {
+        self.backend.sendCurrentLocation(location: location)
     }
     
     public func execute(command: String) -> () {
