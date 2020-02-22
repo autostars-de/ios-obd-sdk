@@ -5,10 +5,26 @@ import Logging
 
 public typealias OnLocationUpdatedHandler = (_ location: Location) -> ()
 
-public struct Location: Codable {
+public struct LocationExecuteCommand: Codable {
+    let longitude: Double
+    let latitude: Double
+    let sessionId: String
+    
+    public init(sessionId: String, longitudeValue: Double, latitudeValue: Double) {
+        self.sessionId = sessionId
+        self.longitude = longitudeValue
+        self.latitude = latitudeValue
+    }
+}
+
+public struct Location {
    let longitude: CLLocationDegrees
    let latitude: CLLocationDegrees
-      
+    
+   public static func create(event: ObdEvent) -> Location {
+      return Location.init(longitudeValue: event.attributeDouble(key: "longitude"), latitudeValue: event.attributeDouble(key: "latitude"))
+   }
+    
    public init(longitudeValue: Double, latitudeValue: Double) {
        self.longitude = CLLocationDegrees.init(longitudeValue)
        self.latitude = CLLocationDegrees.init(latitudeValue)
@@ -31,6 +47,10 @@ public struct Location: Codable {
        let annotation = MKPointAnnotation()
        annotation.coordinate = self.center()
        return annotation
+   }
+    
+   public func displayName() -> String {
+        return "\(longitude) \(latitude)"
    }
 }
 
@@ -72,6 +92,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        
        self.options.onLocationUpdated(Location.init(longitude: locValue.longitude, latitude: locValue.latitude))
     }
     

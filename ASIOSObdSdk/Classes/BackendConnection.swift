@@ -138,9 +138,9 @@ class BackendConnection: NSObject, StreamDelegate {
         }
     }
     
-    func sendCurrentLocation(location: Location) -> () {
-        AF.request("\(BackendConnection.ApiUrl)/obd/position", method: .post, parameters: location, encoder: JSONParameterEncoder.default).responseJSON { response in
-            self.logger.info("sent current location: \(location) \(response)")
+    func sendCurrentLocation(command: LocationExecuteCommand) -> () {
+        AF.request("\(BackendConnection.ApiUrl)/obd/position", method: .post, parameters: command, encoder: JSONParameterEncoder.default).responseJSON { response in
+            self.logger.info("sent current location: \(command) \(response)")
         }
     }
     

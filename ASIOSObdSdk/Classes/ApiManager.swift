@@ -70,8 +70,7 @@ public class ApiManager: NSObject, StreamDelegate {
             )
         )
         
-        location = LocationService.init(options: LocationOptions.init(onLocationUpdated: self.onLocationUpdated))
-        location.register()
+        
     }
     
     public func connect(token: String) -> ApiManager {
@@ -81,7 +80,12 @@ public class ApiManager: NSObject, StreamDelegate {
     }
     
     private func onLocationUpdated(_ location: Location) -> () {
-        self.backend.sendCurrentLocation(location: location)
+        let command = LocationExecuteCommand
+            .init(sessionId: self.sessionId,
+                  longitudeValue: location.longitude,
+                  latitudeValue: location.latitude
+        )
+        self.backend.sendCurrentLocation(command: command)
     }
     
     public func execute(command: String) -> () {
@@ -93,6 +97,8 @@ public class ApiManager: NSObject, StreamDelegate {
         logger.info("onBleConnected")
         
         backend.connect()
+        
+        
     }
     
     private func onBleDisconnected() -> () {
@@ -115,6 +121,11 @@ public class ApiManager: NSObject, StreamDelegate {
             sessionId = String(data: data, encoding: .ascii)!
             let _ = backend.write(data: "\(self.token)\n".data(using: .ascii)!)
             logger.info("onBackendDataReceived-initialized: sessionId: \(self.sessionId) token: \(self.token)")
+            
+            
+            location = LocationService.init(options: LocationOptions.init(onLocationUpdated: self.onLocationUpdated))
+            location.register()
+            
             self.options.onConnected(sessionId)
         }
         
