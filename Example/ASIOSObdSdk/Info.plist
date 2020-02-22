@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>notice</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -34,6 +36,10 @@
 	<string>BLE is used to connect to dongle and your car</string>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>GPS enable?</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>notice</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

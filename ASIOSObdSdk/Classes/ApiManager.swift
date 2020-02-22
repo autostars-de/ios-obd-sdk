@@ -38,10 +38,10 @@ public struct ApiOptions {
 public class ApiManager: NSObject, StreamDelegate {
     
     let logger = Logger(label: String(reflecting: ApiManager.self))
-    let socket = DataSocket(ip: "autostars.de", port: "8898")
     
     private var bluetooth: BleConnection!
     private var backend: BackendConnection!
+    private var location: LocationService!
     
     private var initialized: Bool   = false
     private var sessionId: String   = ""
@@ -63,18 +63,29 @@ public class ApiManager: NSObject, StreamDelegate {
         
         backend = BackendConnection.init(
             options: BackendOptions
-                .init(listen: socket,
+                .init(listen: self.options.socket,
                       onData: self.onBackendDataReceived,
                       onEvent: options.onBackendEventReceived,
                       onAvailableCommands: options.onBackendAvailableCommands
             )
         )
+        
+        
     }
     
     public func connect(token: String) -> ApiManager {
         self.token = token
         bluetooth.connect()
         return self
+    }
+    
+    private func onLocationUpdated(_ location: Location) -> () {
+        let command = LocationExecuteCommand
+            .init(sessionId: self.sessionId,
+                  longitudeValue: location.longitude,
+                  latitudeValue: location.latitude
+        )
+        self.backend.sendCurrentLocation(command: command)
     }
     
     public func execute(command: String) -> () {
@@ -86,6 +97,8 @@ public class ApiManager: NSObject, StreamDelegate {
         logger.info("onBleConnected")
         
         backend.connect()
+        
+        
     }
     
     private func onBleDisconnected() -> () {
@@ -108,6 +121,11 @@ public class ApiManager: NSObject, StreamDelegate {
             sessionId = String(data: data, encoding: .ascii)!
             let _ = backend.write(data: "\(self.token)\n".data(using: .ascii)!)
             logger.info("onBackendDataReceived-initialized: sessionId: \(self.sessionId) token: \(self.token)")
+            
+            
+            location = LocationService.init(options: LocationOptions.init(onLocationUpdated: self.onLocationUpdated))
+            location.register()
+            
             self.options.onConnected(sessionId)
         }
         

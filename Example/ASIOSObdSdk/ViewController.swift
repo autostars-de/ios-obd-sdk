@@ -1,17 +1,23 @@
 import UIKit
 import ASIOSObdSdk
+import MapKit
 
 class ViewController: UIViewController {
 
     @IBOutlet var sessionField: UITextField!
     @IBOutlet var rpmField: UITextField!
+    @IBOutlet var gpsField: UITextField!
     
     @IBOutlet var startSession: UIButton!
     
-    @IBOutlet var mapsView: UIView!
+    @IBOutlet var mapsView: MKMapView!
+    
+    @IBOutlet var totalEvents: UILabel!
     
     private var cloud: ApiManager!
     private var availableCommands: AvailableCommands!
+    
+    private var countEvents = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +38,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func executeCommands(sender: UIButton) {
-        self.cloud.execute(command: "ReadRpmNumber")
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+            self.cloud.execute(command: "ReadRpmNumber")
+        }
     }
         
     func onBackendEvent(_ event: ObdEvent) -> () {
@@ -40,6 +48,14 @@ class ViewController: UIViewController {
             if (event.has(name: "RpmNumberRead")) {
                 self.rpmField.text = event.attributeString(key: "number")
             }
+            if (event.has(name: "LocationRead")) {
+                let location = Location.create(event: event)
+                self.gpsField.text = location.displayName()
+                self.mapsView.setRegion(location.region(), animated: true)
+                self.mapsView.addAnnotation(location.annotation())
+            }
+            self.countEvents = self.countEvents + 1
+            self.totalEvents.text = "\(self.countEvents)"
         }
     }
     

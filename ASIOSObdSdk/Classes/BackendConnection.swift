@@ -34,6 +34,10 @@ public struct ObdEvent: Codable {
         return attributes[key].int!
     }
     
+    public func attributeDouble(key: String) -> Double {
+        return attributes[key].double!
+    }
+    
     private func short() -> String {
         return name.replacingOccurrences(of: "de.autostars.domain.", with: "")
     }
@@ -131,6 +135,12 @@ class BackendConnection: NSObject, StreamDelegate {
     func executeCommand(command: ObdExecuteCommand) -> () {
         AF.request("\(BackendConnection.ApiUrl)/obd/execute", method: .post, parameters: command, encoder: JSONParameterEncoder.default).responseJSON { response in
             self.logger.info("sent command: \(command) \(response)")
+        }
+    }
+    
+    func sendCurrentLocation(command: LocationExecuteCommand) -> () {
+        AF.request("\(BackendConnection.ApiUrl)/obd/position", method: .post, parameters: command, encoder: JSONParameterEncoder.default).responseJSON { response in
+            self.logger.info("sent current location: \(command) \(response)")
         }
     }
     
