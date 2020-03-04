@@ -7,6 +7,7 @@ class ViewController: UIViewController {
     @IBOutlet var sessionField: UITextField!
     @IBOutlet var rpmField: UITextField!
     @IBOutlet var gpsField: UITextField!
+    @IBOutlet var consumptionRateField: UITextField!
     
     @IBOutlet var startSession: UIButton!
     
@@ -40,6 +41,7 @@ class ViewController: UIViewController {
     @IBAction func executeCommands(sender: UIButton) {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             self.cloud.execute(command: "ReadRpmNumber")
+            self.cloud.execute(command: "ReadConsumptionRate")
         }
     }
         
@@ -53,6 +55,9 @@ class ViewController: UIViewController {
                 self.gpsField.text = location.displayName()
                 self.mapsView.setRegion(location.region(), animated: true)
                 self.mapsView.addAnnotation(location.annotation())
+            }
+            if (event.has(name: "ConsumptionRateRead")) {
+                self.consumptionRateField.text = event.attributeString(key: "consumption")
             }
             self.countEvents = self.countEvents + 1
             self.totalEvents.text = "\(self.countEvents)"

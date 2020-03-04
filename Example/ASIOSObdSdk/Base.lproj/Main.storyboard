@@ -134,6 +134,7 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                     <connections>
+                        <outlet property="consumptionRateField" destination="id5-KH-0RD" id="4J8-wq-rKU"/>
                         <outlet property="gpsField" destination="ib4-JM-vb3" id="usc-DB-CPU"/>
                         <outlet property="mapsView" destination="gdP-ZJ-xqE" id="si1-UV-2c6"/>
                         <outlet property="rpmField" destination="6yo-Yf-elu" id="Ds8-cr-Y8F"/>
