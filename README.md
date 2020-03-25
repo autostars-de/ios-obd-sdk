@@ -11,7 +11,7 @@ to integrate easily with your mobile application and be able to to fully run dia
 
 ## Requirements
 
-1. Please get in touch with our team at corporate@autostars.de to get a corporate account for authorization of this SDK.
+1. Please get in touch with our team at essbach@imoveit.de to get a corporate account for authorization of this SDK.
 
 2. Bluetooth 4.0 BLE OBD dongle see: 
 
@@ -99,5 +99,4 @@ self.cloud = ApiManager
 Full example Implementation: [Example Usage within Example App](https://github.com/autostars-de/ios-obd-sdk/blob/master/Example/ASIOSObdSdk/ViewController.swift)
 
 ## Author
-Jan Essbach <essbach@imoveit.de>
-for 2020 autostars.de™ - corporate@autostars.de
+2020 - Jan Essbach <essbach@imoveit.de> for autostars.de™ 
