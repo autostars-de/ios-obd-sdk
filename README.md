@@ -37,7 +37,7 @@ Currently available commands are automatically published at `https://obd.autosta
 }
 ```
 
-You will receive so called ObdEvents within your Session Stream via the Server Sent Events (SSE) stream at:
+You will receive so called `ObdEvents` within your session stream via the Server Sent Events (SSE) at:
 
 `https://obd.autostars.de/obd/stream`
 
