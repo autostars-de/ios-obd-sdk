@@ -1,6 +1,6 @@
 # autostars.de - On Board Diagnosis SDK
 
-###What is the OBD cloud capable of?
+## What is the OBD cloud
 autostars.de offers an reactive obd sensor cloud which can be used for Car2X integration in your business workflow.
 It provides sensor information from your car and fuses sensor information from the mobile device to a session based 
 reactive stream. 
@@ -17,9 +17,11 @@ to integrate easily with your mobile application and be able to to fully run dia
 
 ## Demo
 
+See the following Youtube Video for further real time demonstration of the flow:
 
+[![OBD Cloud Demo](https://img.youtube.com/vi/ES7c5MUOsAU/0.jpg)](https://www.youtube.com/watch?v=ES7c5MUOsAU)
 
-## Usage and API
+## Application Interface
 
 You submit so called `OBDCommands` such as `ReadVinNumber` or `DeleteErrorCodes` at the endpoint
 
@@ -33,9 +35,25 @@ Currently available commands are automatically published at `https://obd.autosta
 }
 ```
 
-The obd cloud 
+You will receive so called ObdEvents within your Session Stream via the Server Sent Events (SSE) stream at:
 
+`https://obd.autostars.de/obd/stream`
 
+Currently available events are automatically published via the OpenAPI 3.0 Spec here:  `https://obd.autostars.de/internal/swagger.json`
+
+Example of one Event could be:
+
+```
+"BatteryVoltageRead" : {
+  "type" : "object",
+  "required" : [ "voltage" ],
+  "properties" : {
+    "voltage" : {
+      "type" : "string"
+    }
+  }
+}
+```
 
 ## Installation
 
@@ -60,13 +78,14 @@ For Location GPS purposes activate
 `NSLocationAlwaysUsageDescription`
 `NSLocationWhenInUseUsageDescription` in your `Info.plist`.
  
+ ## Usage of the SDK
+ 
+ 
 
 
 
-
-## Publish new version
 
 
 ## Author
-
-2020 autostars.de™ - corporate@autostars.de
+Jan Essbach <essbach@imoveit.de>
+for 2020 autostars.de™ - corporate@autostars.de
