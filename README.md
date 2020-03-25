@@ -13,7 +13,9 @@ to integrate easily with your mobile application and be able to to fully run dia
 
 1. Please get in touch with our team at corporate@autostars.de to get a corporate account for authorization of this SDK.
 
-2. Bluetooth 4.0 BLE OBD dongle see: [![Vgate iCar Pro Bluetooth 4.0](https://www.amazon.de/Vgate-Bluetooth-Fehler-Code-Leser-Adapter/dp/B071D8SYXN/)]
+2. Bluetooth 4.0 BLE OBD dongle see: 
+
+[Vgate iCar Pro Bluetooth 4.0](https://www.amazon.de/Vgate-Bluetooth-Fehler-Code-Leser-Adapter/dp/B071D8SYXN)
 
 ## Demo
 
@@ -93,6 +95,8 @@ self.cloud = ApiManager
            )
            .connect(token: "authorization-token-here")
 ```
+
+Full example Implementation: [Example Usage within Example App](https://github.com/autostars-de/ios-obd-sdk/blob/master/Example/ASIOSObdSdk/ViewController.swift)
 
 ## Author
 Jan Essbach <essbach@imoveit.de>
