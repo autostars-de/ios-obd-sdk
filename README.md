@@ -13,7 +13,7 @@ to integrate easily with your mobile application and be able to to fully run dia
 
 1. Please get in touch with our team at corporate@autostars.de to get a corporate account for authorization of this SDK.
 
-2. Bluetooth 4.0 BLE OBD dongle
+2. Bluetooth 4.0 BLE OBD dongle see: [![Vgate iCar Pro Bluetooth 4.0](https://www.amazon.de/Vgate-Bluetooth-Fehler-Code-Leser-Adapter/dp/B071D8SYXN/)]
 
 ## Demo
 
@@ -80,11 +80,19 @@ For Location GPS purposes activate
  
  ## Usage of the SDK
  
+ For full example please refer to the Example Application which represents an intelligent milage tracker with real time fuel consumption.
  
-
-
-
-
+ Initialize the SDK using the following code and supply the corresponding eventhandler implementations.
+ 
+```
+self.cloud = ApiManager
+           .init(options: ApiOptions.init(onConnected: self.onConnected,
+                                          onDisconnected: self.onDisconnected,
+                                          onBackendEvent: self.onBackendEvent,
+                                          onAvailableCommands: self.onAvailableCommands)
+           )
+           .connect(token: "authorization-token-here")
+```
 
 ## Author
 Jan Essbach <essbach@imoveit.de>
