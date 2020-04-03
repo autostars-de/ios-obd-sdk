@@ -3,20 +3,19 @@
 ## What is the OBD cloud
 autostars.de offers an reactive obd sensor cloud which can be used for Car2X integration in your business workflow.
 It provides sensor information from your car and fuses sensor information from the mobile device to a session based 
-reactive stream. 
+reactive stream and provides this information to multiple connected clients.
 
 All you need to obtain to run vehicle diagnostic and fusion of mobile device sensors or build your own use case is 
-to have a Bluetooth 4.0 BLE OBD dongle and an authorization-key for your requests against the cloud. Use this SDK 
+to have a Bluetooth 4.0 BLE obd dongle and an authorization-key for your requests against the cloud. Use this SDK 
 to integrate easily with your mobile application and be able to to fully run diagnostic of your car in the web.
 
 ## Architectural overview
-The following section descriptes the real time streaming flow from your car to the cloud infrastructure.
+The following section descriptes the real time streaming flow from your car to the cloud infrastructure. 
+As shown in the this figure the SDK enables a obd session between the car and cloud. This session consists
+of an idenfifier and pincode to secure the flow from third parties.
 
 <img src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" 
 data-canonical-src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" width="900" />
-
-As shown in the this figure the SDK enables a OBD session between the car and cloud. This session consists of an idenfifier and
-pincode to secure the flow from third parties.
 
 The remote client (needs session pincode to access) or the mobile device itself can than send ObdCommands to 
 the infrastructure for their session. After the cloud has used the real time channel to the car and evaluated the
@@ -24,9 +23,9 @@ protocol an corresponding ObdEvent is emitted and can be consumed via SSE by mul
 
 ## Requirements
 
-1. Please get in touch with our team at essbach@imoveit.de to get a corporate account for authorization of this SDK.
+1. Please get in touch at essbach@imoveit.de to get authorization.
 
-2. Supported Bluetooth 4.0 BLE OBD dongle for your customers see: 
+2. Get a aupported Bluetooth 4.0 BLE OBD dongle with ELM327 chipset: 
 
   * [Vgate iCar Pro Bluetooth 4.0](https://www.amazon.de/Vgate-Bluetooth-Fehler-Code-Leser-Adapter/dp/B071D8SYXN)
 
@@ -84,14 +83,15 @@ target 'YourProject' do
 end
 ```
 
-After this done add this parameters to your `Info.plist` file to access BLE devices within the iOS Framework of apple.
+After this done add this parameters to your `Info.plist` file to access `BLE devices` within the iOS Framework of apple.
 
-`Privacy - Bluetooth Always Usage Description`
-`Privacy - Bluetooth Peripheral Usage Description`
+* `Privacy - Bluetooth Always Usage Description`
+* `Privacy - Bluetooth Peripheral Usage Description`
 
-For Location GPS purposes activate
-`NSLocationAlwaysUsageDescription`
-`NSLocationWhenInUseUsageDescription` in your `Info.plist`.
+For `GPS Location` purposes activate
+
+* `NSLocationAlwaysUsageDescription`
+* `NSLocationWhenInUseUsageDescription` in your `Info.plist`.
  
  ## Usage of the SDK
  
@@ -109,7 +109,10 @@ self.cloud = ApiManager
            .connect(token: "authorization-token-here")
 ```
 
-Full example Implementation: [Example Usage within Example App](https://github.com/autostars-de/ios-obd-sdk/blob/master/Example/ASIOSObdSdk/ViewController.swift)
+## Example Application
+
+ * Intelligent logbook real time consumption, location and live fuel pricing data
+ [Logbook](https://github.com/autostars-de/ios-obd-sdk/blob/master/Example/ASIOSObdSdk/ViewController.swift)
 
 ## Author
 2020 - Jan Essbach <essbach@imoveit.de> for autostars.de™ 
