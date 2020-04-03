@@ -9,6 +9,9 @@ All you need to obtain to run vehicle diagnostic and fusion of mobile device sen
 to have a Bluetooth 4.0 BLE OBD dongle and an authorization-key for your requests against the cloud. Use this SDK 
 to integrate easily with your mobile application and be able to to fully run diagnostic of your car in the web.
 
+## Architectural overview
+
+
 ## Requirements
 
 1. Please get in touch with our team at essbach@imoveit.de to get a corporate account for authorization of this SDK.
