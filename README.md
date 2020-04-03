@@ -10,15 +10,23 @@ to have a Bluetooth 4.0 BLE OBD dongle and an authorization-key for your request
 to integrate easily with your mobile application and be able to to fully run diagnostic of your car in the web.
 
 ## Architectural overview
+The following section descriptes the real time streaming flow from your car to the cloud infrastructure.
 
 <img src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" 
-data-canonical-src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" width="600" />
+data-canonical-src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" width="900" />
+
+As shown in the this figure the SDK enables a OBD session between the car and cloud. This session consists of an idenfifier and
+pincode to secure the flow from third parties.
+
+The remote client (needs session pincode to access) or the mobile device itself can than send ObdCommands to 
+the infrastructure for their session. After the cloud has used the real time channel to the car and evaluated the
+protocol an corresponding ObdEvent is emitted and can be consumed via SSE by multiple connected remote clients.
 
 ## Requirements
 
 1. Please get in touch with our team at essbach@imoveit.de to get a corporate account for authorization of this SDK.
 
-2. Supported Bluetooth 4.0 BLE OBD dongle see: 
+2. Supported Bluetooth 4.0 BLE OBD dongle for your customers see: 
 
   * [Vgate iCar Pro Bluetooth 4.0](https://www.amazon.de/Vgate-Bluetooth-Fehler-Code-Leser-Adapter/dp/B071D8SYXN)
 
