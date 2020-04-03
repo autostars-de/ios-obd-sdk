@@ -12,7 +12,7 @@ to integrate easily with your mobile application and be able to to fully run dia
 ## Architectural overview
 
 <img src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" 
-data-canonical-src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" width="200" height="400" />
+data-canonical-src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" width="600" />
 
 ## Requirements
 
