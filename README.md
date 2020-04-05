@@ -3,11 +3,7 @@
 ## What is the OBD cloud
 autostars.de offers an reactive obd sensor cloud which can be used for Car2X integration in your business workflow.
 It provides sensor information from your car and fuses sensor information from the mobile device to a session based 
-reactive stream and provides this information to multiple connected clients.
-
-All you need to obtain to run vehicle diagnostic and fusion of mobile device sensors or build your own use case is 
-to have a Bluetooth 4.0 BLE obd dongle and an authorization-key for your requests against the cloud. Use this SDK 
-to integrate easily with your mobile application and be able to to fully run diagnostic of your car in the web.
+reactive stream and provides this information to multiple connected remote clients.
 
 ## Architectural overview
 The following section descriptes the real time streaming flow from your car to the cloud infrastructure. 

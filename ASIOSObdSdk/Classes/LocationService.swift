@@ -35,7 +35,7 @@ public struct Location {
        self.latitude = latitude
    }
     
-   func center() -> CLLocationCoordinate2D {
+   public func center() -> CLLocationCoordinate2D {
        return CLLocationCoordinate2D(latitude: self.latitude, longitude: self.longitude)
    }
     
@@ -85,7 +85,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
        if CLLocationManager.locationServicesEnabled() {
            locationManager.delegate = self
            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-           locationManager.distanceFilter = kCLLocationAccuracyHundredMeters
+           locationManager.distanceFilter = kCLLocationAccuracyBestForNavigation
            locationManager.startUpdatingLocation()
        }
     }
