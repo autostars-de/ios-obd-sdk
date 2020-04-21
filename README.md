@@ -24,7 +24,8 @@ protocol an corresponding ObdEvent is emitted and can be consumed via SSE by mul
 2. Get a aupported Bluetooth 4.0 BLE OBD dongle with ELM327 chipset: 
 
   * [Vgate iCar Pro Bluetooth 4.0](https://www.amazon.de/Vgate-Bluetooth-Fehler-Code-Leser-Adapter/dp/B071D8SYXN)
-
+  * [Veepeak Bluetooth 4.0](https://www.amazon.de/gp/product/B073XKQQQW)
+  
 ## Demo
 
 See the following Youtube Video for further real time demonstration of the flow:

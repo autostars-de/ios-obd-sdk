@@ -1,4 +1,10 @@
 import UIKit
+import ReSwift
+
+let mainStore = Store<AppState>(
+    reducer: obdReducer,
+    state: nil
+)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

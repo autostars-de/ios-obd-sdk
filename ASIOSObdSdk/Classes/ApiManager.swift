@@ -39,6 +39,11 @@ public class ApiManager: NSObject, StreamDelegate {
     
     let logger = Logger(label: String(reflecting: ApiManager.self))
     
+    let supportedAdapters = [
+        "0x18F0",  // Vgate iCar Pro Bluetooth 4.0
+        "0xFFF0"   // Veepeak Bluetooth 4.0
+    ]
+    
     private var bluetooth: BleConnection!
     private var backend: BackendConnection!
     private var location: LocationService!
@@ -55,7 +60,7 @@ public class ApiManager: NSObject, StreamDelegate {
         super.init()
         
         bluetooth = BleConnection.init(
-            options: BleOptions.init(serviceUUIDs: ["0x18F0"],
+            options: BleOptions.init(serviceUUIDs: self.supportedAdapters,
             onConnected: self.onBleConnected,
             onDataReceived: self.onBleDataReceived,
             onDisconnected: self.onBleDisconnected

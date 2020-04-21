@@ -38,7 +38,7 @@ public struct ObdEvent: Codable {
         return attributes[key].double!
     }
     
-    private func short() -> String {
+    public func short() -> String {
         return name.replacingOccurrences(of: "de.autostars.domain.", with: "")
     }
 }

@@ -3,9 +3,10 @@ use_frameworks!
 target 'ASIOSObdSdk_Example' do
   platform :ios, '13.0'
   pod 'ASIOSObdSdk', :path => '../'
-
+  pod 'RxSwift', '~> 5'
+  pod 'RxCocoa', '~> 5'
+  pod 'ReSwift', '~> 5'
   target 'ASIOSObdSdk_Tests' do
     inherit! :search_paths
-
     end
 end

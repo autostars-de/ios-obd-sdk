@@ -7,16 +7,30 @@ PODS:
     - SwiftyJSON (~> 4.2.0)
   - IKEventSource (3.0.1)
   - Logging (1.2.0)
+  - ReSwift (5.0.0)
+  - RxCocoa (5.1.1):
+    - RxRelay (~> 5)
+    - RxSwift (~> 5)
+  - RxRelay (5.1.1):
+    - RxSwift (~> 5)
+  - RxSwift (5.1.1)
   - SwiftyJSON (4.2.0)
 
 DEPENDENCIES:
   - ASIOSObdSdk (from `../`)
+  - ReSwift (~> 5)
+  - RxCocoa (~> 5)
+  - RxSwift (~> 5)
 
 SPEC REPOS:
   trunk:
     - Alamofire
     - IKEventSource
     - Logging
+    - ReSwift
+    - RxCocoa
+    - RxRelay
+    - RxSwift
     - SwiftyJSON
 
 EXTERNAL SOURCES:
@@ -28,8 +42,12 @@ SPEC CHECKSUMS:
   ASIOSObdSdk: c8c5efb12b9c38239a11911b0abd15b644f0d1ac
   IKEventSource: ababa323587c6b0c250dd54d4a48ab68fd845e8e
   Logging: 7838d379d234d7e5ae1265fa02804a9084caf04c
+  ReSwift: 628f1a9b3ee52e3b3ca2a644435472fd77afafe1
+  RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
+  RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
+  RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
 
-PODFILE CHECKSUM: 496b17feb44470ad4eaf08a0d73e1b312ca94650
+PODFILE CHECKSUM: 37897798a211054bc9c64c5ab7d42c7daca21b69
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1
