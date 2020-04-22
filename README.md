@@ -6,16 +6,16 @@ It provides sensor information from your car and fuses sensor information from t
 reactive stream and provides this information to multiple connected remote clients.
 
 ## Architectural overview
-The following section descriptes the real time streaming flow from your car to the cloud infrastructure. 
-As shown in the this figure the SDK enables a obd session between the car and cloud. This session consists
+The following section describes the real time streaming flow from your car to the cloud infrastructure.  As shown in the
+this figure the SDK enables a obd session between the car, mobile phone and cloud. This session consists
 of an idenfifier and pincode to secure the flow from third parties.
 
 <img src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" 
 data-canonical-src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/streaming-flow.png?raw=true" width="900" />
 
-The remote client (needs session pincode to access) or the mobile device itself can than send ObdCommands to 
-the infrastructure for their session. After the cloud has used the real time channel to the car and evaluated the
-protocol an corresponding ObdEvent is emitted and can be consumed via SSE by multiple connected remote clients.
+The remote client (needs session pincode to access) or the mobile device itself can than send ObdCommands to the infrastructure for their session.
+After the cloud has used the real time channel to the car and evaluated the OBD protocol an corresponding ObdEvent 
+is emitted and can be consumed via SSE by multiple connected remote clients.
 
 ## Requirements
 
