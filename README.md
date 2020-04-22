@@ -1,4 +1,4 @@
-# <img src="https://autostars.de/assets/logo/logo_green-emblem.png" data-canonical-src="https://autostars.de/assets/logo/logo_green-emblem.png" width="300" /> autostars.de - On Board Diagnosis SDK
+# <img src="https://autostars.de/assets/logo/logo_green-emblem.png" data-canonical-src="https://autostars.de/assets/logo/logo_green-emblem.png" width="100" /> autostars.de - On Board Diagnosis SDK
 
 ## What is the OBD cloud
 autostars.de offers an reactive obd sensor cloud which can be used for Car2X integration in your business workflow.
@@ -19,10 +19,11 @@ protocol an corresponding ObdEvent is emitted and can be consumed via SSE by mul
 
 ## Requirements
 
-1. Please get in touch at essbach@imoveit.de to get authorization.
+1. Please get in touch at essbach@imoveit.de to get authorization token to cloud as a company.
 
-2. Get a aupported Bluetooth 4.0 BLE OBD dongle with ELM327 chipset: 
+2. Get a supported Bluetooth 4.0 BLE OBD dongle with ELM327 chipset.
 
+Currently supported adapters:
   * [Vgate iCar Pro Bluetooth 4.0](https://www.amazon.de/Vgate-Bluetooth-Fehler-Code-Leser-Adapter/dp/B071D8SYXN)
   * [Veepeak Bluetooth 4.0](https://www.amazon.de/gp/product/B073XKQQQW)
   
@@ -138,8 +139,7 @@ The second usecase is the Example application within this repository which uses 
  * Intelligent logbook real time consumption, location and live fuel pricing data
  [Logbook](https://github.com/autostars-de/ios-obd-sdk/blob/master/Example/ASIOSObdSdk/ViewController.swift)
 
-As you see there are multiple use cases possible and we are greatful to enable direct
-communication within your business workflow. 
+As you see there are multiple use cases possible and we are greatful to enable direct car communication within your business workflow. 
 
 ## Author
 2020 - Jan Essbach <essbach@imoveit.de> for autostars.de™ 
