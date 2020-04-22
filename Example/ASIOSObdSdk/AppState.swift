@@ -45,7 +45,7 @@ func obdReducer(action: Action, state: AppState?) -> AppState {
         case let action as DistanceEvaluated:
             state.velocityKmHours = action.velocityMetersPerSecond * 3.6
             state.totalMeters = state.totalMeters + action.travelledInMeters
-        case let _ as EventRead:
+        case _ as EventRead:
             state.totalEvents = state.totalEvents + 1
         default:
             break
