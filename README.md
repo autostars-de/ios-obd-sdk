@@ -1,4 +1,4 @@
-# autostars.de - On Board Diagnosis SDK
+# <img src="https://autostars.de/assets/logo/logo_green-emblem.png" data-canonical-src="https://autostars.de/assets/logo/logo_green-emblem.png" width="300" /> autostars.de - On Board Diagnosis SDK
 
 ## What is the OBD cloud
 autostars.de offers an reactive obd sensor cloud which can be used for Car2X integration in your business workflow.
@@ -34,25 +34,22 @@ See the following Youtube Video for further real time demonstration of the flow:
 
 ## Application Interface
 
-You submit so called `OBDCommands` such as `ReadVinNumber` or `DeleteErrorCodes` at the endpoint
+You submit so called `OBDCommands` such as `ReadVinNumber` , `ReadErrorCodes` or `DeleteErrorCodes` at the endpoint `https://obd.autostars.de/obd/execute`.
 
-`https://obd.autostars.de/obd/execute`
+Currently available commands are automatically published at `https://obd.autostars.de/obd/commands`.
 
-Currently available commands are automatically published at `https://obd.autostars.de/obd/commands`
+  * ReadErrorCodes
+        Will read the peding error codes such as P0012 from your car. 
+        emits ErrorCodesRead event with corresponding information.
+  * DeleteErrorCodes
+        Will delete pending error codes from the car.
+        emits ErrorCodesDeleted event. *notice* Your car needs a reboot to see the changes.
+  
+You will receive so called `ObdEvents` such as ErrorCodesRead within your session stream via the Server Sent Events (SSE) at: `https://obd.autostars.de/obd/stream`.
 
-```
-{
-  "commands" : [ "ReadErrorCodes", "DeleteErrorCodes", "ReadConsumptionRate", "ReadRpmNumber", "ReadVinNumber", "ReadBatteryVoltage" ]
-}
-```
+Currently available events are automatically published via the OpenAPI 3.0 Spec here:  `https://obd.autostars.de/internal/swagger.json`.
 
-You will receive so called `ObdEvents` within your session stream via the Server Sent Events (SSE) at:
-
-`https://obd.autostars.de/obd/stream`
-
-Currently available events are automatically published via the OpenAPI 3.0 Spec here:  `https://obd.autostars.de/internal/swagger.json`
-
-Example of one Event could be:
+Example of the `BatteryVoltageRead` event can be seen here:
 
 ```
 "BatteryVoltageRead" : {
@@ -88,13 +85,14 @@ After this done add this parameters to your `Info.plist` file to access `BLE dev
 For `GPS Location` purposes activate
 
 * `NSLocationAlwaysUsageDescription`
-* `NSLocationWhenInUseUsageDescription` in your `Info.plist`.
+* `NSLocationWhenInUseUsageDescription`.
  
  ## Usage of the SDK
  
- For full example please refer to the Example Application which represents an intelligent milage tracker with real time fuel consumption.
- 
- Initialize the SDK using the following code and supply the corresponding eventhandler implementations.
+As a full usage example please refer to the Example Application to be found in this repository. As example application we build an
+intelligent milage tracker with real time fuel consumption and location awareness in less than one hour.
+
+Initialize the SDK using the following code and supply the corresponding event handler implementations.
  
 ```
 self.cloud = ApiManager
@@ -106,10 +104,42 @@ self.cloud = ApiManager
            .connect(token: "authorization-token-here")
 ```
 
+* `onConnected` - Get called when the session to OBD adapter and Backend is established. You will obtain your session credentials.
+* `onDisconnected` - Get called when the session was closed.
+* `onBackendEvent` - Get called when an event was published with the corresponding ObdEvent like `ErrorCodesRead`
+* `onAvailableCommands` - Get called with the currently supported `ObdCommands` to store them in your app.
+
+### Executing an OBD command
+
+After initialization of the SDK executing commands may the main reason to use this cloud for whereas the follwoing code example
+can be used
+
+```
+Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+    self.cloud.execute(command: "ReadRpmNumber")
+}
+```
+
+As seen it may be useful to execute `ObdCommands` in a interval repeatly like in the example above (every 1 second) but
+that depends on your usecase. 
+
+
 ## Example Application
+
+The OBD cloud currently enables _two_ usecases. The first one is directly integrated in the autostars.de Angular 9 frontend
+and delivers a nice realtime remote diagnostic tool for german car dealers. The benefit is the direct integration in their daily 
+business workflow direct under their domain. The next screenshot shows an example
+
+<img src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/demo-autostars.png?raw=true" 
+data-canonical-src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/demo-autostars.png?raw=true" width="900" />
+
+The second usecase is the Example application within this repository which uses the current SDK and builds an
 
  * Intelligent logbook real time consumption, location and live fuel pricing data
  [Logbook](https://github.com/autostars-de/ios-obd-sdk/blob/master/Example/ASIOSObdSdk/ViewController.swift)
+
+As you see there are multiple use cases possible and we are greatful to enable direct
+communication within your business workflow. 
 
 ## Author
 2020 - Jan Essbach <essbach@imoveit.de> for autostars.de™ 
