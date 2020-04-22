@@ -14,7 +14,6 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
     @IBOutlet var startSession: UIButton!
     @IBOutlet var mapsView: MKMapView!
     @IBOutlet var totalEvents: UILabel!
-    
     private var line: MKPolyline!
     
     private var cloud: ApiManager!
@@ -25,8 +24,7 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.mapsView.delegate = self
-            
+        
         self.cloud = ApiManager
             .init(options: ApiOptions.init(onConnected: self.onConnected,
                                            onDisconnected: self.onDisconnected,
@@ -35,16 +33,20 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
             )
             .connect(token: "authorization-token-here")
         
-        
         mainStore
             .subscribe(self)
         
-        self.subject
+        self.mapsView
+            .delegate = self
+                
+        
+        let _ = self.subject
             .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
-            .subscribe(onNext: { state in self.updateUI(state: state) })
+            .subscribe(onNext: { state in
+                self.updateUI(state: state)
+            })
     }
 
-   
     func onConnected(_ session: String) -> () {
         DispatchQueue.main.async {
             self.sessionField.text = session
@@ -60,14 +62,20 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
     func onBackendEvent(_ event: ObdEvent) -> () {
         switch event.short() {
             case "RpmNumberRead":
-                mainStore.dispatch(RpmNumberRead(value: event.attributeString(key: "number")))
+                mainStore.dispatch(
+                    RpmNumberRead(value: event.attributeString(key: "number"))
+                )
             case "LocationRead":
-                mainStore.dispatch(LocationRead(value: Location.create(event: event)))
+                mainStore.dispatch(
+                    LocationRead(value: Location.create(event: event))
+                )
             case "DistanceEvaluated":
-                mainStore.dispatch(DistanceEvaluated(
-                    velocityMetersPerSecond: event.attributeDouble(key: "velocityMetersPerSecond"),
-                    travelledInMeters: event.attributeDouble(key: "travelledInMeters")
-                ))
+                mainStore.dispatch(
+                    DistanceEvaluated(
+                        velocityMetersPerSecond: event.attributeDouble(key: "velocityMetersPerSecond"),
+                        travelledInMeters: event.attributeDouble(key: "travelledInMeters")
+                    )
+                )
             default:
                 return
         }
