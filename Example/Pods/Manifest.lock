@@ -1,7 +1,7 @@
 PODS:
-  - Alamofire (5.0.0)
-  - ASIOSObdSdk (1.0.0):
-    - Alamofire (= 5.0.0)
+  - Alamofire (4.5.1)
+  - ASIOSObdSdk (1.0.1):
+    - Alamofire (~> 4.5.0)
     - IKEventSource (~> 3.0.1)
     - Logging (~> 1.1)
     - SwiftyJSON (~> 4.2.0)
@@ -38,8 +38,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Alamofire: 58ff2bfb8daaacaa233d5c36e37b10a5248f59b1
-  ASIOSObdSdk: c8c5efb12b9c38239a11911b0abd15b644f0d1ac
+  Alamofire: 2d95912bf4c34f164fdfc335872e8c312acaea4a
+  ASIOSObdSdk: c7a1e9ad373c3cdda79c2166e83cf09ebd995114
   IKEventSource: ababa323587c6b0c250dd54d4a48ab68fd845e8e
   Logging: 7838d379d234d7e5ae1265fa02804a9084caf04c
   ReSwift: 628f1a9b3ee52e3b3ca2a644435472fd77afafe1

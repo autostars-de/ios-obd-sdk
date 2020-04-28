@@ -133,20 +133,29 @@ class BackendConnection: NSObject, StreamDelegate {
     }
     
     func executeCommand(command: ObdExecuteCommand) -> () {
-        AF.request("\(BackendConnection.ApiUrl)/obd/execute", method: .post, parameters: command, encoder: JSONParameterEncoder.default).responseJSON { response in
+        let url = "\(BackendConnection.ApiUrl)/obd/execute"
+        let parameters: Parameters = ["sessionId": command.sessionId, "name": command.name]
+        
+        Alamofire.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON { response in
             self.logger.info("sent command: \(command) \(response)")
         }
     }
     
     func sendCurrentLocation(command: LocationExecuteCommand) -> () {
-        AF.request("\(BackendConnection.ApiUrl)/obd/position", method: .post, parameters: command, encoder: JSONParameterEncoder.default).responseJSON { response in
+        let url = "\(BackendConnection.ApiUrl)/obd/position"
+        let parameters: Parameters = ["longitude": command.longitude, "latitude": command.latitude, "sessionId": command.sessionId]
+        
+        Alamofire.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON { response in
             self.logger.info("sent current location: \(command) \(response)")
         }
     }
     
     private func getAvailableCommands() -> () {
-        AF.request("\(BackendConnection.ApiUrl)/obd/commands").responseDecodable(of: AvailableCommands.self) { response in
-            self.options.onAvailableCommand(response.value!)
+        let url = "\(BackendConnection.ApiUrl)/obd/commands"
+        Alamofire.request(url, method: .get, encoding: JSONEncoding.default).responseJSON { response in
+            self.options.onAvailableCommand(AvailableCommands(commands:
+                JSON(response.result.value!)["commands"].arrayValue.map { (command) -> String in command.stringValue }
+            ))
         }
     }
     

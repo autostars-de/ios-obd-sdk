@@ -85,7 +85,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
        if CLLocationManager.locationServicesEnabled() {
            locationManager.delegate = self
            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-           locationManager.distanceFilter = kCLLocationAccuracyBestForNavigation
+           locationManager.distanceFilter = kCLLocationAccuracyNearestTenMeters
            locationManager.startUpdatingLocation()
        }
     }

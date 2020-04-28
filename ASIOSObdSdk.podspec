@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'ASIOSObdSdk'
-  s.version          = '1.0.1'
+  s.version          = '1.0.2'
   s.summary          = 'This SDK encapsulates the communication with the obd cloud of autostars.de'
   s.description      = <<-DESC
 Use this SDK as easy integration method of obd cloud of autostars.de. Please get a corporate account by contacting
@@ -18,5 +18,5 @@ autostars.de. Use your access-token to fully authorize your application.
   s.dependency              'Logging', '~> 1.1'
   s.dependency              'IKEventSource', '~> 3.0.1'
   s.dependency              'SwiftyJSON', '~> 4.2.0'
-  s.dependency              'Alamofire', '5.0.0'
+  s.dependency              'Alamofire', '~> 4.5.0'
 end

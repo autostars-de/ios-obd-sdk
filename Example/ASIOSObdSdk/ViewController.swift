@@ -60,6 +60,9 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
     }
         
     func onBackendEvent(_ event: ObdEvent) -> () {
+        
+        print(event.short())
+        
         switch event.short() {
             case "RpmNumberRead":
                 mainStore.dispatch(
@@ -92,6 +95,9 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
             self.totalEvents.text = "\(state.totalEvents)"
             self.velocityField.text = "\(state.velocityKmHours)"
             self.totalMetersField.text = "\(state.totalMeters)"
+            if (state.currentLocation != nil) {
+                self.gpsField.text = "\(state.currentLocation!.displayName())"
+            }
         }
     }
     

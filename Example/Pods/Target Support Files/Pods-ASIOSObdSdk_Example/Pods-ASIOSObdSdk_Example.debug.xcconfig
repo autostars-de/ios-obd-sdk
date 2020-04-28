@@ -3,7 +3,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ASIOSObdS
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
 HEADER_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ASIOSObdSdk/ASIOSObdSdk.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/Alamofire/Alamofire.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/IKEventSource/IKEventSource.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/Logging/Logging.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/ReSwift/ReSwift.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/RxCocoa/RxCocoa.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/RxRelay/RxRelay.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/RxSwift/RxSwift.framework/Headers" "${PODS_CONFIGURATION_BUILD_DIR}/SwiftyJSON/SwiftyJSON.framework/Headers"
 LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
-OTHER_LDFLAGS = $(inherited) -framework "ASIOSObdSdk" -framework "Alamofire" -framework "CFNetwork" -framework "CoreBluetooth" -framework "Foundation" -framework "IKEventSource" -framework "Logging" -framework "ReSwift" -framework "RxCocoa" -framework "RxRelay" -framework "RxSwift" -framework "SwiftyJSON" -framework "UIKit"
+OTHER_LDFLAGS = $(inherited) -framework "ASIOSObdSdk" -framework "Alamofire" -framework "CoreBluetooth" -framework "Foundation" -framework "IKEventSource" -framework "Logging" -framework "ReSwift" -framework "RxCocoa" -framework "RxRelay" -framework "RxSwift" -framework "SwiftyJSON" -framework "UIKit"
 OTHER_SWIFT_FLAGS = $(inherited) -D COCOAPODS
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
