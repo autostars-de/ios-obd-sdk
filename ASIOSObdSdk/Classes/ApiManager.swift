@@ -1,10 +1,11 @@
 import Foundation
-import CoreBluetooth
 import Logging
+import SwiftyJSON
+import CoreBluetooth
 
-public typealias ConnectedHandler = (_ sessionId: String) -> ()
-public typealias DisconnectedHandler = () -> ()
-public typealias BackendEventHandler = (_ event: ObdEvent) -> ()
+public typealias ConnectedHandler       = (_ challenge: ObdChallenge) -> ()
+public typealias DisconnectedHandler    = () -> ()
+public typealias BackendEventHandler    = (_ event: ObdEvent) -> ()
 
 public struct ObdExecuteCommand: Codable {
     let sessionId: String
@@ -13,6 +14,26 @@ public struct ObdExecuteCommand: Codable {
     init(sessionId: String, name: String) {
         self.sessionId = sessionId
         self.name = name
+    }
+}
+
+public struct ObdCustomerLogin: Encodable {
+    let clientId: String!
+    let payload: JSON!
+    
+    public init(clientId: String, payload: JSON!) {
+        self.clientId = clientId
+        self.payload  = payload
+    }
+}
+
+public struct ObdChallenge: Decodable {
+    public let id: String
+    public let token: String
+    
+    init(id: String, token: String) {
+        self.id = id
+        self.token = token
     }
 }
 
@@ -49,10 +70,10 @@ public class ApiManager: NSObject, StreamDelegate {
     private var location: LocationService!
     
     private var initialized: Bool   = false
-    private var sessionId: String   = ""
-    private var token: String       = ""
-    
     private let options: ApiOptions
+    
+    private var login: ObdCustomerLogin!
+    private var challenge: ObdChallenge!
     
     public init(options: ApiOptions) {
         self.options = options
@@ -74,19 +95,17 @@ public class ApiManager: NSObject, StreamDelegate {
                       onAvailableCommands: options.onBackendAvailableCommands
             )
         )
-        
-        
     }
     
-    public func connect(token: String) -> ApiManager {
-        self.token = token
+    public func connect(login: ObdCustomerLogin) -> ApiManager {
+        self.login = login
         bluetooth.connect()
         return self
     }
     
     private func onLocationUpdated(_ location: Location) -> () {
         let command = LocationExecuteCommand
-            .init(sessionId: self.sessionId,
+            .init(sessionId: self.challenge.id,
                   longitudeValue: location.longitude,
                   latitudeValue: location.latitude
         )
@@ -94,16 +113,13 @@ public class ApiManager: NSObject, StreamDelegate {
     }
     
     public func execute(command: String) -> () {
-        let command = ObdExecuteCommand(sessionId: self.sessionId, name: command)
+        let command = ObdExecuteCommand(sessionId: self.challenge.id, name: command)
         self.backend.executeCommand(command: command)
     }
     
     private func onBleConnected() -> () {
         logger.info("onBleConnected")
-        
-        backend.connect()
-        
-        
+        backend.connect(login: self.login)
     }
     
     private func onBleDisconnected() -> () {
@@ -119,19 +135,27 @@ public class ApiManager: NSObject, StreamDelegate {
     private func onBackendDataReceived(data: Data) -> () {
         
         if (initialized) {
+            
             logger.info(">>>: \(String(describing: String(data: data, encoding: .ascii)))")
             bluetooth.write(data: data)
+            
         } else {
-            initialized = true
-            sessionId = String(data: data, encoding: .ascii)!
-            let _ = backend.write(data: "\(self.token)\n".data(using: .ascii)!)
-            logger.info("onBackendDataReceived-initialized: sessionId: \(self.sessionId) token: \(self.token)")
             
-            
-            location = LocationService.init(options: LocationOptions.init(onLocationUpdated: self.onLocationUpdated))
-            location.register()
-            
-            self.options.onConnected(sessionId)
+            do {
+                let challenge = try JSONDecoder().decode(ObdChallenge.self, from: data)
+                self.challenge = challenge;
+                
+                location = LocationService.init(options: LocationOptions.init(onLocationUpdated: self.onLocationUpdated))
+                location.register()
+                
+                backend.listenOnEventStream(challenge: self.challenge)
+                backend.getAvailableCommands()
+                
+                initialized = true
+                self.options.onConnected(self.challenge)
+                
+            } catch {}
+        
         }
         
     }

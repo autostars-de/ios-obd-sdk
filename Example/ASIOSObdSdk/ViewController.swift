@@ -3,6 +3,7 @@ import ASIOSObdSdk
 import MapKit
 import RxSwift
 import ReSwift
+import SwiftyJSON
 
 class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
     
@@ -29,9 +30,9 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
             .init(options: ApiOptions.init(onConnected: self.onConnected,
                                            onDisconnected: self.onDisconnected,
                                            onBackendEvent: self.onBackendEvent,
-                                           onAvailableCommands: self.onAvailableCommands)
-            )
-            .connect(token: "authorization-token-here")
+                                           onAvailableCommands: self.onAvailableCommands
+            ))
+            .connect(login: ObdCustomerLogin(clientId: "clientId", payload: JSON()))
         
         mainStore
             .subscribe(self)
@@ -47,9 +48,9 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
             })
     }
 
-    func onConnected(_ session: String) -> () {
+    func onConnected(_ challenge: ObdChallenge) -> () {
         DispatchQueue.main.async {
-            self.sessionField.text = session
+            self.sessionField.text = challenge.id
         }        
     }
     
@@ -60,9 +61,6 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
     }
         
     func onBackendEvent(_ event: ObdEvent) -> () {
-        
-        print(event.short())
-        
         switch event.short() {
             case "RpmNumberRead":
                 mainStore.dispatch(
@@ -91,12 +89,12 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
        
     func updateUI(state: AppState) -> () {
         DispatchQueue.main.async {
-            self.rpmField.text = state.rpm
-            self.totalEvents.text = "\(state.totalEvents)"
-            self.velocityField.text = "\(state.velocityKmHours)"
-            self.totalMetersField.text = "\(state.totalMeters)"
+            self.rpmField.text          = state.rpm
+            self.totalEvents.text       = "\(state.totalEvents)"
+            self.velocityField.text     = "\(state.velocityKmHours)"
+            self.totalMetersField.text  = "\(state.totalMeters)"
             if (state.currentLocation != nil) {
-                self.gpsField.text = "\(state.currentLocation!.displayName())"
+                self.gpsField.text      = "\(state.currentLocation!.displayName())"
             }
         }
     }
@@ -108,8 +106,8 @@ class ViewController: UIViewController, MKMapViewDelegate, StoreSubscriber {
        
     func onDisconnected() -> () {
         DispatchQueue.main.async {
-            self.sessionField.isHidden = true
-            self.sessionField.text = ""
+            self.sessionField.isHidden  = true
+            self.sessionField.text      = ""
         }
     }
     

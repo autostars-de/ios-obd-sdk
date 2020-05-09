@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'ASIOSObdSdk'
-  s.version          = '1.0.2'
+  s.version          = '1.0.3'
   s.summary          = 'This SDK encapsulates the communication with the obd cloud of autostars.de'
   s.description      = <<-DESC
 Use this SDK as easy integration method of obd cloud of autostars.de. Please get a corporate account by contacting

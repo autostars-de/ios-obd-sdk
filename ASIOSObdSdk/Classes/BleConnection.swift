@@ -16,8 +16,7 @@ struct BleOptions {
     init(serviceUUIDs: [String],
          onConnected: @escaping BleConnectedHandler,
          onDataReceived: @escaping BleReadHandler,
-         onDisconnected: @escaping BleDisconnectedHandler
-    ) {
+         onDisconnected: @escaping BleDisconnectedHandler) {
         self.onConnected = onConnected
         self.onDataReceived = onDataReceived
         self.onDisconnected = onDisconnected

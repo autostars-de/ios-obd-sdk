@@ -55,8 +55,6 @@ struct DataSocket {
 
 public struct AvailableCommands: Decodable { let commands: [String] }
 
-
-
 typealias BackendOnDataHandler = (_ data: Data) -> ()
 public typealias BackendOnEventHandler = (_ event: ObdEvent) -> ()
 public typealias BackendOnAvailableCommandsHandler = (_ commands: AvailableCommands) -> ()
@@ -83,7 +81,10 @@ class BackendConnection: NSObject, StreamDelegate {
     
     let logger = Logger(label: String(reflecting: BackendConnection.self))
     
-    private static let ApiUrl = "https://obd.autostars.de/"
+    private static let ApiUrl                  = "https://obd.autostars.de/"
+    private static let ExecuteUrl              = "\(BackendConnection.ApiUrl)/obd/execute"
+    private static let PositionUrl             = "\(BackendConnection.ApiUrl)/obd/position"
+    private static let AvailableCommandsUrl    = "\(BackendConnection.ApiUrl)/obd/commands"
     
     private var inputStream: InputStream!
     private var outputStream: OutputStream!
@@ -112,7 +113,8 @@ class BackendConnection: NSObject, StreamDelegate {
         super.init()
     }
     
-    func connect() {
+    func connect(login: ObdCustomerLogin) {
+        
         Stream.getStreamsToHost(withName: self.options.listen.ipAddress, port: self.options.listen.port,
                                            inputStream: &inputStream, outputStream: &outputStream)
         
@@ -127,40 +129,38 @@ class BackendConnection: NSObject, StreamDelegate {
             outputStream.open()
                         
             connected = true
-            listenOnEventStream()
-            getAvailableCommands()
+            
+            do {
+               let command = String(data: try JSONEncoder().encode(login),
+                  encoding: .utf8
+               )
+                write(data: (command! + "\n").data(using: .utf8)!)
+            } catch {}
+            
         }
-    }
-    
-    func executeCommand(command: ObdExecuteCommand) -> () {
-        let url = "\(BackendConnection.ApiUrl)/obd/execute"
-        let parameters: Parameters = ["sessionId": command.sessionId, "name": command.name]
         
-        Alamofire.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON { response in
-            self.logger.info("sent command: \(command) \(response)")
-        }
     }
     
-    func sendCurrentLocation(command: LocationExecuteCommand) -> () {
-        let url = "\(BackendConnection.ApiUrl)/obd/position"
-        let parameters: Parameters = ["longitude": command.longitude, "latitude": command.latitude, "sessionId": command.sessionId]
+    public func getAvailableCommands() -> () {
+        Alamofire
+            .request(BackendConnection.AvailableCommandsUrl,
+                     method: .get,
+                     encoding: JSONEncoding.default)
+            .responseJSON { response in
+                
+                let raw = JSON(response.result.value!)["commands"]
+                    .arrayValue
+                    .map { (command) -> String in command.stringValue }
+            
+                self.options.onAvailableCommand(AvailableCommands(commands: raw))
+            }
+    }
+    
+    public func listenOnEventStream(challenge: ObdChallenge) -> () {
         
-        Alamofire.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseJSON { response in
-            self.logger.info("sent current location: \(command) \(response)")
-        }
-    }
-    
-    private func getAvailableCommands() -> () {
-        let url = "\(BackendConnection.ApiUrl)/obd/commands"
-        Alamofire.request(url, method: .get, encoding: JSONEncoding.default).responseJSON { response in
-            self.options.onAvailableCommand(AvailableCommands(commands:
-                JSON(response.result.value!)["commands"].arrayValue.map { (command) -> String in command.stringValue }
-            ))
-        }
-    }
-    
-    private func listenOnEventStream() -> () {
-        eventSource = EventSource(url: URL(string: "\(BackendConnection.ApiUrl)/obd/events")!)
+        let url = "\(BackendConnection.ApiUrl)/obd/events?id=\(challenge.id)&token=\(challenge.token)"
+        
+        eventSource = EventSource(url: URL(string: url)!)
         
         eventSource.onMessage { (id, event, data) in
             
@@ -175,7 +175,7 @@ class BackendConnection: NSObject, StreamDelegate {
                     self.options.onEvent(e)
                 
                 } catch {
-                    self.logger.error("could not unserialize incoming event \(String(describing: data))  \(error)")
+                    self.logger.error("could not unserialize incoming event \(String(describing: data)) \(error)")
                 }
                 
             }
@@ -185,11 +185,29 @@ class BackendConnection: NSObject, StreamDelegate {
         eventSource.connect()
     }
     
-    private func disconnectEventStream() {
-        if (self.eventSource != nil) {
-            self.eventSource.disconnect()
-            self.eventSource = nil
-        }
+    func executeCommand(command: ObdExecuteCommand) -> () {
+         Alamofire
+             .request(BackendConnection.ExecuteUrl,
+                      method: .post,
+                      parameters: ["sessionId": command.sessionId, "name": command.name],
+                      encoding: JSONEncoding.default)
+             .responseJSON { response in
+                 self.logger.info("sent command: \(command) \(response)")
+             }
+     }
+     
+     func sendCurrentLocation(command: LocationExecuteCommand) -> () {
+         Alamofire
+             .request(BackendConnection.PositionUrl,
+                      method: .post,
+                      parameters: ["longitude": command.longitude,
+                                   "latitude": command.latitude,
+                                   "sessionId": command.sessionId
+                      ],
+                      encoding: JSONEncoding.default)
+             .responseJSON { response in
+                 self.logger.info("sent current location: \(command) \(response)")
+             }
     }
     
     func isConnected() -> Bool {
@@ -218,7 +236,10 @@ class BackendConnection: NSObject, StreamDelegate {
         inputStream  = nil
         outputStream = nil
         
-        disconnectEventStream()
+        if (self.eventSource != nil) {
+            self.eventSource.disconnect()
+            self.eventSource = nil
+        }
         
         connected    = false
     }

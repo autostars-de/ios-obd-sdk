@@ -1,6 +1,6 @@
 PODS:
   - Alamofire (4.5.1)
-  - ASIOSObdSdk (1.0.1):
+  - ASIOSObdSdk (1.0.2):
     - Alamofire (~> 4.5.0)
     - IKEventSource (~> 3.0.1)
     - Logging (~> 1.1)
@@ -39,7 +39,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: 2d95912bf4c34f164fdfc335872e8c312acaea4a
-  ASIOSObdSdk: c7a1e9ad373c3cdda79c2166e83cf09ebd995114
+  ASIOSObdSdk: 72daa9cf2d98f93ca73cd7727810c62e63af7831
   IKEventSource: ababa323587c6b0c250dd54d4a48ab68fd845e8e
   Logging: 7838d379d234d7e5ae1265fa02804a9084caf04c
   ReSwift: 628f1a9b3ee52e3b3ca2a644435472fd77afafe1
