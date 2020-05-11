@@ -89,13 +89,11 @@ class BackendConnection: NSObject, StreamDelegate {
     private var inputStream: InputStream!
     private var outputStream: OutputStream!
 
-    public var connected: Bool = false
     
     private var options: BackendOptions
-    
     private var onDataHandler: BackendOnDataHandler
-    
     private var eventSource: EventSource!
+    private var login: ObdCustomerLogin!
     
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -114,6 +112,7 @@ class BackendConnection: NSObject, StreamDelegate {
     }
     
     func connect(login: ObdCustomerLogin) {
+        self.login = login
         
         Stream.getStreamsToHost(withName: self.options.listen.ipAddress, port: self.options.listen.port,
                                            inputStream: &inputStream, outputStream: &outputStream)
@@ -122,21 +121,14 @@ class BackendConnection: NSObject, StreamDelegate {
            
             inputStream.delegate = self
             
+            
             inputStream.schedule(in: .main, forMode: .common)
             outputStream.schedule(in: .main, forMode: .common)
 
             inputStream.open()
             outputStream.open()
-                        
-            connected = true
             
-            do {
-               let command = String(data: try JSONEncoder().encode(login),
-                  encoding: .utf8
-               )
-                write(data: (command! + "\n").data(using: .utf8)!)
-            } catch {}
-            
+            self.openCompleted();
         }
         
     }
@@ -210,12 +202,9 @@ class BackendConnection: NSObject, StreamDelegate {
              }
     }
     
-    func isConnected() -> Bool {
-        return connected;
-    }
-        
     func write(data: Data) -> () {
-        let _ = outputStream.write(data: data)
+       logger.info(">>>: \(String(describing: String(data: data, encoding: .utf8)))")
+       let b = outputStream.write(data: data)
     }
     
     func isInputStream(stream: Stream) -> Bool {
@@ -240,30 +229,48 @@ class BackendConnection: NSObject, StreamDelegate {
             self.eventSource.disconnect()
             self.eventSource = nil
         }
-        
-        connected    = false
     }
 
+    func openCompleted() -> () {
+        do {
+           var command = String(data: try JSONEncoder().encode(login),
+              encoding: .utf8
+           )
+           command?.append("\n")
+           write(data: command!.data(using: .utf8)!)
+        } catch {
+           logger.error("could not write customerLogin")
+        }
+    }
+    
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
           switch eventCode {
-              case .hasBytesAvailable:
-                let input = aStream as! InputStream
-                while (input.hasBytesAvailable) {
-                    
-                    let bufferSize = 1024
-                    let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
-                    
-                    defer {
-                        buffer.deallocate()
-                    }
-                    
-                    while input.hasBytesAvailable {
-                        self.onDataHandler(Data(bytes: buffer, count: input.read(buffer, maxLength: bufferSize)))
+            case .openCompleted:
+                self.openCompleted();
+                break
+            case .hasBytesAvailable:
+                if (isInputStream(stream: aStream)) {
+                    let input = aStream as! InputStream
+                    while (input.hasBytesAvailable) {
+                        
+                        let bufferSize = 1024
+                        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+                        
+                        defer {
+                            buffer.deallocate()
+                        }
+                        
+                        while input.hasBytesAvailable {
+                            let data = Data(bytes: buffer, count: input.read(buffer, maxLength: bufferSize))
+                            logger.info("<<<: \(String(describing: String(data: data, encoding: .utf8)))")
+                            self.onDataHandler(data)
+                        }
                     }
                 }
                 break
               default:
-                 break
+                logger.critical("\(aStream): \(eventCode)")
+                break
           }
       }
     

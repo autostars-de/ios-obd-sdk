@@ -103,6 +103,11 @@ public class ApiManager: NSObject, StreamDelegate {
         return self
     }
     
+    private func onBleConnected() -> () {
+        logger.info("onBleConnected")
+        backend.connect(login: self.login)
+    }
+    
     private func onLocationUpdated(_ location: Location) -> () {
         let command = LocationExecuteCommand
             .init(sessionId: self.challenge.id,
@@ -115,11 +120,6 @@ public class ApiManager: NSObject, StreamDelegate {
     public func execute(command: String) -> () {
         let command = ObdExecuteCommand(sessionId: self.challenge.id, name: command)
         self.backend.executeCommand(command: command)
-    }
-    
-    private func onBleConnected() -> () {
-        logger.info("onBleConnected")
-        backend.connect(login: self.login)
     }
     
     private func onBleDisconnected() -> () {
