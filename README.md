@@ -17,9 +17,17 @@ The remote client (needs session pincode to access) or the mobile device itself 
 After the cloud has used the real time channel to the car and evaluated the OBD protocol an corresponding ObdEvent 
 is emitted and can be consumed via SSE by multiple connected remote clients.
 
+
+### Authorize a obd session
+This section handles the fact of authorization of a obd session for a given `clientId` known as ObdCustomer.
+The following figure illustrates the data flow within the creation of a new session:
+
+<img src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/authorization-flow.png?raw=true" 
+data-canonical-src="https://github.com/autostars-de/ios-obd-sdk/blob/master/Documentation/authorization-flow.png?raw=true" width="900" />
+
 ## Requirements
 
-1. Please get in touch at essbach@imoveit.de to get authorization token to cloud as a company.
+1. Please get in touch at essbach@imoveit.de to register and get `clientId` and `clientSecret`.
 
 2. Get a supported Bluetooth 4.0 BLE OBD dongle with ELM327 chipset.
 
