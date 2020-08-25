@@ -38,9 +38,14 @@ public struct ObdEvent: Codable {
         return attributes[key].double!
     }
     
+    public func attributesJson() -> String {
+        return attributes.map({ (attributes) -> String in attributes.rawString() ?? "-"}) ?? "-"
+    }
+    
     public func short() -> String {
         return name.replacingOccurrences(of: "de.autostars.domain.", with: "")
     }
+    
 }
 
 struct DataSocket {
@@ -53,7 +58,7 @@ struct DataSocket {
     }
 }
 
-public struct AvailableCommands: Decodable { let commands: [String] }
+public struct AvailableCommands: Decodable { public let commands: [String] }
 
 typealias BackendOnDataHandler = (_ data: Data) -> ()
 public typealias BackendOnEventHandler = (_ event: ObdEvent) -> ()
@@ -89,7 +94,6 @@ class BackendConnection: NSObject, StreamDelegate {
     private var inputStream: InputStream!
     private var outputStream: OutputStream!
 
-    
     private var options: BackendOptions
     private var onDataHandler: BackendOnDataHandler
     private var eventSource: EventSource!
@@ -120,7 +124,6 @@ class BackendConnection: NSObject, StreamDelegate {
         if let inputStream = inputStream, let outputStream = outputStream {
            
             inputStream.delegate = self
-            
             
             inputStream.schedule(in: .main, forMode: .common)
             outputStream.schedule(in: .main, forMode: .common)
@@ -204,7 +207,7 @@ class BackendConnection: NSObject, StreamDelegate {
     
     func write(data: Data) -> () {
        logger.info(">>>: \(String(describing: String(data: data, encoding: .utf8)))")
-       let b = outputStream.write(data: data)
+       let _ = outputStream.write(data: data)
     }
     
     func isInputStream(stream: Stream) -> Bool {
