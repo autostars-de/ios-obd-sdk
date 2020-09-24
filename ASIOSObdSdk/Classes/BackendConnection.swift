@@ -38,14 +38,9 @@ public struct ObdEvent: Codable {
         return attributes[key].double!
     }
     
-    public func attributesJson() -> String {
-        return attributes.map({ (attributes) -> String in attributes.rawString() ?? "-"}) ?? "-"
-    }
-    
     public func short() -> String {
         return name.replacingOccurrences(of: "de.autostars.domain.", with: "")
     }
-    
 }
 
 struct DataSocket {
@@ -60,11 +55,13 @@ struct DataSocket {
 
 public struct AvailableCommands: Decodable { public let commands: [String] }
 
+typealias BackendOpenHandler = () -> ()
 typealias BackendOnDataHandler = (_ data: Data) -> ()
 public typealias BackendOnEventHandler = (_ event: ObdEvent) -> ()
 public typealias BackendOnAvailableCommandsHandler = (_ commands: AvailableCommands) -> ()
 
 struct BackendOptions {
+    let onOpen: BackendOpenHandler
     let onData: BackendOnDataHandler
     let onEvent: BackendOnEventHandler
     let onAvailableCommand: BackendOnAvailableCommandsHandler
@@ -72,10 +69,12 @@ struct BackendOptions {
     let listen: DataSocket
  
     init(listen: DataSocket,
+         onOpen: @escaping BackendOpenHandler,
          onData: @escaping BackendOnDataHandler,
          onEvent: @escaping BackendOnEventHandler,
          onAvailableCommands: @escaping BackendOnAvailableCommandsHandler) {
         self.listen = listen
+        self.onOpen = onOpen
         self.onData = onData
         self.onEvent = onEvent
         self.onAvailableCommand = onAvailableCommands
@@ -95,9 +94,13 @@ class BackendConnection: NSObject, StreamDelegate {
     private var outputStream: OutputStream!
 
     private var options: BackendOptions
-    private var onDataHandler: BackendOnDataHandler
     private var eventSource: EventSource!
     private var login: ObdCustomerLogin!
+    
+    private var _messagesQueue: Array<Data> = [Data]()
+    private var loggedIn = false
+    private var loggedInMsg = false
+    private let bufferSize = 1024
     
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -111,7 +114,6 @@ class BackendConnection: NSObject, StreamDelegate {
     
     init(options: BackendOptions) {
         self.options = options
-        self.onDataHandler = options.onData
         super.init()
     }
     
@@ -124,16 +126,15 @@ class BackendConnection: NSObject, StreamDelegate {
         if let inputStream = inputStream, let outputStream = outputStream {
            
             inputStream.delegate = self
+            outputStream.delegate = self
             
             inputStream.schedule(in: .main, forMode: .common)
             outputStream.schedule(in: .main, forMode: .common)
 
-            inputStream.open()
             outputStream.open()
+            inputStream.open()
             
-            self.openCompleted();
         }
-        
     }
     
     public func getAvailableCommands() -> () {
@@ -206,8 +207,12 @@ class BackendConnection: NSObject, StreamDelegate {
     }
     
     func write(data: Data) -> () {
-       logger.info(">>>: \(String(describing: String(data: data, encoding: .utf8)))")
-       let _ = outputStream.write(data: data)
+        
+        if (loggedIn) {
+            
+            _messagesQueue.insert(data, at: 0)
+            writeToStream()
+        }
     }
     
     func isInputStream(stream: Stream) -> Bool {
@@ -219,6 +224,9 @@ class BackendConnection: NSObject, StreamDelegate {
     }
     
     func disconnect() -> () {
+        loggedInMsg = false
+        loggedIn = false
+        
         inputStream.close()
         outputStream.close()
         
@@ -235,48 +243,75 @@ class BackendConnection: NSObject, StreamDelegate {
     }
 
     func openCompleted() -> () {
-        do {
-           var command = String(data: try JSONEncoder().encode(login),
-              encoding: .utf8
-           )
-           command?.append("\n")
-           write(data: command!.data(using: .utf8)!)
-        } catch {
-           logger.error("could not write customerLogin")
+        if (inputStream.streamStatus == .open && outputStream.streamStatus == .open && loggedInMsg == false) {
+            
+            do {
+               loggedInMsg = true
+               var command = String(data: try JSONEncoder().encode(login),
+                  encoding: .utf8
+               )
+               command?.append("\n")
+               _messagesQueue.insert(command!.data(using: .utf8)!, at: 0)
+            } catch {
+               logger.error("could not write customerLogin")
+            }
+            
         }
     }
     
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
           switch eventCode {
             case .openCompleted:
-                self.openCompleted();
+                self.openCompleted()
                 break
             case .hasBytesAvailable:
+                logger.error(".hasBytesAvailable")
                 if (isInputStream(stream: aStream)) {
-                    let input = aStream as! InputStream
-                    while (input.hasBytesAvailable) {
-                        
-                        let bufferSize = 1024
-                        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
-                        
-                        defer {
-                            buffer.deallocate()
-                        }
-                        
-                        while input.hasBytesAvailable {
-                            let data = Data(bytes: buffer, count: input.read(buffer, maxLength: bufferSize))
-                            logger.info("<<<: \(String(describing: String(data: data, encoding: .utf8)))")
-                            self.onDataHandler(data)
-                        }
-                    }
+                    handleIncommingStream(stream: aStream)
                 }
                 break
-              default:
-                logger.critical("\(aStream): \(eventCode)")
+            case .hasSpaceAvailable:
+                if (isOutputStream(stream: aStream)) {
+                    writeToStream()
+                }
+                break
+            default:
+                logger.warning("\(aStream): \(eventCode)")
                 break
           }
       }
     
+     func writeToStream() {
+        if _messagesQueue.count > 0 && self.outputStream!.hasSpaceAvailable {                               // maybe threading needed to sync here
+            do {
+                //DispatchQueue.main.async {
+                    let message = self._messagesQueue.removeLast()                                          // here accessing empty some times
+                    self.logger.info(">>>: \(String(describing: String(data: message, encoding: .utf8)))")
+                    let _ = self.outputStream!.write(data: message)
+                //}
+            } catch {
+                logger.error("could not write to stream")
+            }
+        }
+    }
+    
+    func handleIncommingStream(stream: Stream) {
+        //DispatchQueue.main.async {
+            var buffer = Array<UInt8>(repeating: 0, count: self.bufferSize)
+            let bytesRead = self.inputStream.read(&buffer, maxLength: 1024)
+            let data = Data(bytes: buffer, count: bytesRead)
+            if (loggedInMsg && !loggedIn) {
+                loggedIn = true
+                let loginMessage = String(data: data, encoding:.utf8)
+                let tokens = loginMessage!.components(separatedBy: CharacterSet.newlines)
+              
+                self.options.onData((tokens.first?.data(using: .utf8))!)
+            } else {
+                self.logger.info("<<<: \(String(describing: String(data: data, encoding: .utf8)))")
+                self.options.onData(data)
+            }
+        //}
+    }
 }
 
 extension OutputStream {

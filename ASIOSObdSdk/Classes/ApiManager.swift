@@ -90,11 +90,16 @@ public class ApiManager: NSObject, StreamDelegate {
         backend = BackendConnection.init(
             options: BackendOptions
                 .init(listen: self.options.socket,
+                      onOpen: self.onOpen,
                       onData: self.onBackendDataReceived,
                       onEvent: options.onBackendEventReceived,
                       onAvailableCommands: options.onBackendAvailableCommands
             )
         )
+    }
+    
+    public func onOpen() -> () {
+        self.logger.warning("backend onOpen")
     }
     
     public func connect(login: ObdCustomerLogin) -> ApiManager {
