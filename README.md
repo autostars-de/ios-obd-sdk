@@ -39,7 +39,7 @@ Currently supported adapters:
 
 See the following Youtube Video for further real time demonstration of the flow:
 
-[![OBD Cloud Demo](https://img.youtube.com/vi/ES7c5MUOsAU/0.jpg)](https://www.youtube.com/watch?v=ES7c5MUOsAU)
+[![OBD Cloud Demo](https://img.youtube.com/vi/JZZ0NOQYA-0/0.jpg)](https://www.youtube.com/watch?v=JZZ0NOQYA-0)
 
 ## Application Interface
 
