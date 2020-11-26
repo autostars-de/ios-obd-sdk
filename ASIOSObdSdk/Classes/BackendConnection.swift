@@ -283,15 +283,12 @@ class BackendConnection: NSObject, StreamDelegate {
     
      func writeToStream() {
         if _messagesQueue.count > 0 && self.outputStream!.hasSpaceAvailable {                               // maybe threading needed to sync here
-            do {
+            
                 //DispatchQueue.main.async {
                     let message = self._messagesQueue.removeLast()                                          // here accessing empty some times
                     self.logger.info(">>>: \(String(describing: String(data: message, encoding: .utf8)))")
                     let _ = self.outputStream!.write(data: message)
                 //}
-            } catch {
-                logger.error("could not write to stream")
-            }
         }
     }
     
